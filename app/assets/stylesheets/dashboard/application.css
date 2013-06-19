@@ -41,7 +41,19 @@ td.hour, th.hour {
   color: black;
 }
 
-#piechart text {
+.inner_arc text, .outer_arc text {
   fill: white;
   font-size: 9px;
+}
+
+thead {
+  background: #eee;
+}
+
+tfoot {
+  background: #eee;
+}
+
+form {
+  margin: 0px;
 }

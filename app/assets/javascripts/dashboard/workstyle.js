@@ -92,26 +92,23 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
     this.graph = d3.select(graphSelector);
     
     // clear
-    this.graph.selectAll("svg").remove();
+    this.graph.selectAll("div").remove();
 
-    var barchart = this.graph.append("svg")
+    var barchart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "barchart").append("svg")
           .attr("width", this.width + this.margin.left + this.margin.right)
           .attr("height", this.height + this.margin.top + this.margin.bottom)
           .attr("class", "barchart")
         .append("g")
-          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-          .attr("id", "barchart");
+          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
     
-    var piechart = this.graph.append("svg")
+    var piechart = this.graph.append("div").attr("class", "tab-pane").attr("id", "piechart").append("svg")
           .attr("width", this.width + this.margin.left + this.margin.right)
           .attr("height", this.height + this.margin.top + this.margin.bottom)
           .attr("class", "piechart")
         .append("g")
-          .attr("id", "piechart")
           .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
     
     // initialize tooltip
-    this.graph.select("div").remove()
     this.tooltip = this.graph
       .append("div")
         .style("position", "absolute")
@@ -149,7 +146,12 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
  */
 Workstyle.prototype.load = function() {
   var self = this;
-  d3.json(this.datasource, function(response) {
+  
+  var since = d3.select("#since")[0][0].value;
+  var until = d3.select("#until")[0][0].value;
+  var username = d3.select("#username")[0][0].value;
+  
+  d3.json(this.datasource + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
     self.data = response;
     
@@ -207,6 +209,8 @@ Workstyle.prototype.update = function() {
       .scale(this.hour_scale)
       .orient("left");
     
+    this.graph.select("svg.barchart").selectAll("g.axis").remove();
+    
     this.graph.select("svg.barchart").append("g")
       .attr("class", "x axis")
       .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")")
@@ -226,11 +230,14 @@ Workstyle.prototype.update = function() {
         .text("Hours");
     
     var self = this;
-    var layer = this.graph.select("#barchart").selectAll(".layer")
+    this.graph.select("svg.barchart g").selectAll(".layer").remove();
+    var layer = this.graph.select("svg.barchart g").selectAll(".layer")
         .data(layers)
       .enter().append("g")
         .attr("class", "layer")
         .style("fill", function(d) { return self.color_scale(d.tag); });
+    
+
     
     var total = {};
     this.data.total.result.forEach(function(entry) {
@@ -263,6 +270,7 @@ Workstyle.prototype.update = function() {
         
       })
 
+    d3.selectAll("svg.barchart .legent").remove();
     var bar_legend = d3.select("svg.barchart").selectAll(".legend")
         .data(this.data.data_2nd)
       .enter().append("g")
@@ -301,7 +309,9 @@ Workstyle.prototype.update = function() {
     
     var total = this.data.total.total;
     
-    var g = d3.select("#piechart").selectAll(".inner_arc")
+    d3.selectAll("svg.piechart g g").remove();
+    
+    var g = d3.select("svg.piechart g").selectAll(".inner_arc")
       .data(pie(this.data.data_2nd))
       .enter().append("g")
         .attr("class", "inner_arc");
@@ -329,7 +339,7 @@ Workstyle.prototype.update = function() {
         .style("text-anchor", "middle")
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
 
-    g = d3.select("#piechart").selectAll(".outer_arc")
+    g = d3.select("svg.piechart g").selectAll(".outer_arc")
       .data(pie(this.data.data))
       .enter().append("g")
         .attr("class", "outer_arc");
@@ -358,6 +368,7 @@ Workstyle.prototype.update = function() {
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
 
 
+    d3.selectAll("svg.piechart .legent").remove();
     var pie_legend = d3.select("svg.piechart").selectAll(".legend")
         .data(this.data.data_2nd)
       .enter().append("g")
@@ -381,6 +392,8 @@ Workstyle.prototype.update = function() {
   
   if(this.table) {
   
+    this.table.selectAll("thead tr").remove();
+    
     var head_row = this.table.select("thead").append("tr");
     head_row.append("th").text("TAG");
     head_row.selectAll("th.date").data(this.data.data[0].result)
@@ -389,18 +402,23 @@ Workstyle.prototype.update = function() {
       .attr("class", "date")
       .text(function(d) { return d.date.substr(0,7); });
   
+    this.table.selectAll("tbody tr").remove();
     var tr = this.table.select("tbody")
       .selectAll("tr")
       .data(this.data.data_2nd)
       .enter()
-      .append("tr")
-    tr.append("th").text(function(d) { return d.tag; });
+      .append("tr");
+
+    tr.append("th")
+      .text(function(d) { return d.tag; })
+      .style("background-color", function(d) { return self.color_scale(d.tag)});
     tr.selectAll("td").data(function(d) {return d.result; })
       .enter()
       .append("td")
       .attr("class", "hour")
       .text(function(d) { return format(d.hour) + "h"; });
 
+    this.table.selectAll("tfoot tr").remove();
     var foot_row = this.table.select("tfoot").append("tr");
     foot_row.append("th").text("TOTAL");
     foot_row.selectAll("th.total").data(this.data.total.result)
@@ -418,4 +436,13 @@ Workstyle.prototype.update = function() {
  */
 $(function(){
   var workstyle = new Workstyle("#graph", "#table");
+  
+  $("#update").on("click", function() { workstyle.load(); return false;})
+  $("form").on("submit", function() { return false;})
+
+  $('.datepicker').datepicker({
+    format: 'yyyy-mm-dd',
+    weekStart: 1
+  })
+
 });

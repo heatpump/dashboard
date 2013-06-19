@@ -1,14 +1,64 @@
   <div>
     <h2>Workstyle</h2>
     <div class="well">
-      <!--
+
       <form class="form-inline">
-        Date: <input type="text" name="until" id="until" class="datepicker span2" /> ~
-        <input type="text" name="until" id="until" class="datepicker span2" />
+          Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
+          <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
+
+          Staff:
+          <select id="username" name="username">
+          <option value="">All Staff</option>
+          <option>jun@uniba.jp</option>
+          <option>haruma@uniba.jp</option>
+          <option>rei@uniba.jp</option>
+          <option>yui@uniba.jp</option>
+          <option>seiya@uniba.jp</option>
+          <option>noriyuki@uniba.jp</option>
+          <option>ryo@uniba.jp</option>
+          <option>tetsuro@uniba.jp</option>
+          <option>keiichi@uniba.jp</option>
+          <option>andre@uniba.jp</option>
+          <option>hideyuki@uniba.jp</option>
+          <option>daichi@uniba.jp</option>
+          <option>sei@uniba.jp</option>
+          <option>mori@uniba.jp</option>
+          <option>saki@uniba.jp</option>
+          <option>ogawa@uniba.jp</option>
+          <option>takumi@uniba.jp</option>
+          <option>mizutani@uniba.jp</option>
+          </select>
+          <!--
+          <div class="btn-group">
+            <button class="btn">All User</button>
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+              <li><a tabindex="-1" href="#">all user</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">haruma@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
+            </ul>
+          </div>
+          -->
+
+          <button class="btn btn-primary" id="update">Update</button>
       </form>
-      -->
+
     </div>
-    <div id="graph">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#barchart" data-toggle="tab">Trends</a></li>
+      <li><a href="#piechart" data-toggle="tab">Piechart</a></li>
+    </ul>
+    <div id="graph" class="tab-content">
     </div>
     <hr />
     <div id="table">

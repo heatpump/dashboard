@@ -22,10 +22,17 @@ module Dashboard
     #
     def data
     
-      date_since = Date.parse("2013-04-01")
-      date_until = Date.today
-    
-      result = HeatpumpCore::Entry.where(:date => date_since .. date_until).group(:year, :month, :tag).sum(:hour)
+      date_since = params[:since].blank? ? Date.parse("2013-04-01") : Date.parse(params[:since])
+      date_until = params[:until].blank? ? Date.today : Date.parse(params[:until]);
+      username = params[:username]
+      
+      logger.debug(date_since)
+      logger.debug(date_until)
+      logger.debug(username)
+      
+      arel = HeatpumpCore::Entry.where(:date => date_since .. date_until)
+      arel = arel.where(:username => username) unless username.blank?
+      result = arel.group(:year, :month, :tag).sum(:hour)
       
       date_list = [
         '2013-04-01',
@@ -60,7 +67,7 @@ module Dashboard
       
       result_matrix = {}
       
-      ['Pxxxx', 'Cxxxx', 'GROUP', 'INVESTMENT', 'PROFIT', 'MANAGEMENT'].each do |category_tag|
+      ['Pxxxx', 'Cxxxx', 'GROUP', 'INVESTMENT', 'PROFIT', 'MANAGEMENT', 'OTHER'].each do |category_tag|
         result_matrix[category_tag] = result_template.clone
       end
 
@@ -136,9 +143,7 @@ module Dashboard
         categories.each do |category_tag, tags|
           if tags.index(tag)
             value.each do |date, hour|
-              logger.debug(hour)
               if date != 'children'
-                logger.debug(category_tag)
                 result_matrix[category_tag][date] += hour
               end
             end
@@ -205,8 +210,6 @@ module Dashboard
       end
       
       response = {data: response_data, total: {result: total_result, total: total}}
-      
-      logger.debug(response)
       
       render :json => response
     end
