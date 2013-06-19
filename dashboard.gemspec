@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Jun Komatsu"]
   s.email       = ["jun@uniba.jp"]
   s.homepage    = "http://uniba.jp"
-  s.summary     = "経営くん"
+  s.summary     = "dashboard for radiografija"
   s.description = "KPI Visualization for radiografija"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
