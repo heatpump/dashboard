@@ -15,3 +15,7 @@ gem "jquery-rails"
 
 # To use debugger
 # gem 'debugger'
+
+gem 'bootstrap-rails-engine'
+gem 'heatpump-core', :path => 'lib/heatpump-core'
+gem 'mysql2'

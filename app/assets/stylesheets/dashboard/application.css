@@ -8,6 +8,40 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= require_self
  *= require_tree .
+ *= require bootstrap/bootstrap
+ *= require bootstrap/bootstrap-responsive
+ *= require_self
  */
+
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+td.hour, th.hour {
+  text-align: right;
+}
+
+.data-tooltip {
+  font-size: 10px;
+  border: 1px solid #ccc;
+  background-color: rgba(255,255,255,0.8);
+  padding: 3px 6px 2px 6px;
+  color: black;
+}
+
+#piechart text {
+  fill: white;
+  font-size: 9px;
+}

@@ -5,10 +5,47 @@
   <%= stylesheet_link_tag    "dashboard/application", :media => "all" %>
   <%= javascript_include_tag "dashboard/application" %>
   <%= csrf_meta_tags %>
+  <style type="text/css">
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+  </style>
 </head>
 <body>
 
-<%= yield %>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="brand" href="#">経営くん</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="./">Dashboard</a></li>
+          <li><a href="./management">Management</a></li>
+          <li><a href="./production">Production</a></li>
+          <li><a href="./flagship">Flagship</a></li>
+          <li><a href="./workstyle">Workstyle</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <%= yield %>
+
+  <hr>
+
+  <footer>
+    <p>&copy; Uniba Inc. 2013</p>
+  </footer>
+
+</div> <!-- /container -->
 
 </body>
 </html>
