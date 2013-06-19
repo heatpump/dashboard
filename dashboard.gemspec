@@ -7,11 +7,11 @@ require "dashboard/version"
 Gem::Specification.new do |s|
   s.name        = "dashboard"
   s.version     = Dashboard::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Dashboard."
-  s.description = "TODO: Description of Dashboard."
+  s.authors     = ["Jun Komatsu"]
+  s.email       = ["jun@uniba.jp"]
+  s.homepage    = "http://uniba.jp"
+  s.summary     = "経営くん"
+  s.description = "KPI Visualization for radiografija"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
