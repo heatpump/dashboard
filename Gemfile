@@ -18,5 +18,5 @@ gem 'rails', '3.2.13'
 # gem 'debugger'
 
 gem 'bootstrap-rails-engine'
-gem 'heatpump-core', :path => 'lib/heatpump-core'
+#gem 'heatpump-core', :path => 'lib/heatpump-core'
 gem 'mysql2'

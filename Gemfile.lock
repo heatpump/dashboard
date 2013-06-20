@@ -5,11 +5,6 @@ PATH
       bootstrap-rails-engine
       rails (~> 3.2.13)
 
-PATH
-  remote: lib/heatpump-core
-  specs:
-    heatpump-core (0.0.1)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -103,7 +98,6 @@ PLATFORMS
 DEPENDENCIES
   bootstrap-rails-engine
   dashboard!
-  heatpump-core!
   jquery-rails
   mysql2
   rails (= 3.2.13)

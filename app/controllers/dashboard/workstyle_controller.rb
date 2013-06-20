@@ -1,13 +1,12 @@
 require_dependency "dashboard/application_controller"
-require "heatpump-core/entry"
+#require "heatpump-core/entry"
 
 module Dashboard
 
-  include HeatpumpCore
+  #include HeatpumpCore
 
   class WorkstyleController < ApplicationController
     def index
-      entry = HeatpumpCore::Entry
     end
     
     #
@@ -30,7 +29,7 @@ module Dashboard
       logger.debug(date_until)
       logger.debug(username)
       
-      arel = HeatpumpCore::Entry.where(:date => date_since .. date_until)
+      arel = Entry.where(:date => date_since .. date_until)
       arel = arel.where(:username => username) unless username.blank?
       result = arel.group(:year, :month, :tag).sum(:hour)
       
