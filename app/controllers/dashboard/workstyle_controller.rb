@@ -152,11 +152,13 @@ module Dashboard
         end
         
         unless found || categories_children.keys.index(tag)
-          value.each do |date,hour|
-            result_matrix['UNKNOWN'][date] += hour
-          end
-          categories_children['UNKNOWN'][tag] = result_matrix.delete(tag)
+#          value.each do |date,hour|
+#            result_matrix['UNKNOWN'][date] += hour
+#          end
+#          categories_children['UNKNOWN'][tag] = result_matrix.delete(tag)
+          result_matrix.delete(tag)
         end
+
       end
       
       categories_children.each do |category_tag, children|
