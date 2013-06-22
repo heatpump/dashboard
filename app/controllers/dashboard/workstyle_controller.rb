@@ -66,7 +66,7 @@ module Dashboard
       
       result_matrix = {}
       
-      ['Pxxxx', 'Cxxxx', 'GROUP', 'INVESTMENT', 'PROFIT', 'MANAGEMENT', 'OTHER'].each do |category_tag|
+      ['Pxxxx', 'Cxxxx', 'GROUP', 'INVESTMENT', 'PROFIT', 'MANAGEMENT', 'OTHER', 'UNKNOWN'].each do |category_tag|
         result_matrix[category_tag] = result_template.clone
       end
 
@@ -136,7 +136,7 @@ module Dashboard
         'MANAGEMENT' => ['MM', 'SP', 'PR', 'BO'],
       }
 
-      categories_children = {'MANAGEMENT' => {}, 'INVESTMENT' => {}, 'PROFIT' => {}, 'OTHER' => {}}
+      categories_children = {'MANAGEMENT' => {}, 'INVESTMENT' => {}, 'PROFIT' => {}, 'OTHER' => {}, 'UNKNOWN' => {}}
       result_matrix.each do |tag, value|
         found = false
         categories.each do |category_tag, tags|
@@ -153,9 +153,9 @@ module Dashboard
         
         unless found || categories_children.keys.index(tag)
           value.each do |date,hour|
-            result_matrix['OTHER'][date] += hour
+            result_matrix['UNKNOWN'][date] += hour
           end
-          categories_children['OTHER'][tag] = result_matrix.delete(tag)
+          categories_children['UNKNOWN'][tag] = result_matrix.delete(tag)
         end
       end
       

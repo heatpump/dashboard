@@ -56,7 +56,8 @@ function Workstyle(graphSelector, tableSelector) {
         "BO",
         "SP",
         "PR",
-        "OTHER"])
+        "OTHER",
+        "UNKNOWN"])
     .range([
       "rgb(254,112,56)",
         "rgb(253,134,71)",
@@ -71,7 +72,8 @@ function Workstyle(graphSelector, tableSelector) {
         "rgb(26,163,215)",
         "rgb(83,212,253)",
         "rgb(0,145,206)",
-      "rgb(255,252,65)"]);
+      "rgb(255,252,65)",
+      "rgb(200,200,200)"]);
     
   // select
   this.graph = undefined;
@@ -147,9 +149,9 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
 Workstyle.prototype.load = function() {
   var self = this;
   
-  var since = d3.select("#since")[0][0].value;
-  var until = d3.select("#until")[0][0].value;
-  var username = d3.select("#username")[0][0].value;
+  var since = $("#since").val();
+  var until = $("#until").val();
+  var username = $("#username").val();
   
   d3.json(this.datasource + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
@@ -175,7 +177,7 @@ Workstyle.prototype.update = function() {
   
   this.data.data.forEach(function(d) {
     console.log(d);
-    if (d['children'] && d['tag'] != 'OTHER') {
+    if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
       d['children'].forEach(function(d) {
         data_replace.push(d);
       })
