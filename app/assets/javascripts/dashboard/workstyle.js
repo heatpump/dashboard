@@ -20,11 +20,14 @@ function Workstyle(graphSelector, tableSelector) {
    */
   
   // datasource url
-  this.datasource = "/dashboard/api/workstyle.json";
+  this.api_by_month = "/dashboard/api/workstyle/by_month.json";
+  this.api_by_person = "/dashboard/api/workstyle/by_person.json";
+  this.api_check = "/dashboard/api/workstyle/by_person.json";
   
   // data holder
-  this.data = undefined;
-  
+  this.data_by_month = undefined;
+  this.data_by_person = undefined;
+  this.data_check = undefined;
 
   this.margin = {top: 20, right: 20, bottom: 40, left: 100};
   this.width = 1170 - this.margin.left - this.margin.right;
@@ -127,13 +130,18 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
     this.table = d3.select(tableSelector);
     
     // clear
-    this.table.select("table").remove();
+    this.table.selectAll("table").remove();
     
-    var table = this.table.append("table").attr("class", "table table-bordered");
+    var month_table = this.table.append("table").attr("class", "table table-bordered month");
+    var person_table = this.table.append("table").attr("class", "table table-bordered person");
     
-    table.append("thead");
-    table.append("tfoot");
-    table.append("tbody");
+    month_table.append("thead");
+    month_table.append("tfoot");
+    month_table.append("tbody");
+
+    person_table.append("thead");
+    person_table.append("tfoot");
+    person_table.append("tbody");
     
   } else {
     this.table = undefined;
@@ -153,12 +161,20 @@ Workstyle.prototype.load = function() {
   var until = $("#until").val();
   var username = $("#username").val();
   
-  d3.json(this.datasource + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
+  d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
-    self.data = response;
+    self.data_by_month = response;
     
-    self.update();
+    self.update_month();
   });
+
+  d3.json(this.api_by_person + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
+
+    self.data_by_person = response;
+    
+    self.update_person();
+  });
+
 }
 
 /**
@@ -167,7 +183,7 @@ Workstyle.prototype.load = function() {
  * @param {Object} data
  *
  */
-Workstyle.prototype.update = function() {
+Workstyle.prototype.update_month = function() {
 
   var format = d3.format(".2f");
 
@@ -175,7 +191,7 @@ Workstyle.prototype.update = function() {
   
   var data_replace = [];
   
-  this.data.data.forEach(function(d) {
+  this.data_by_month.data.forEach(function(d) {
     console.log(d);
     if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
       d['children'].forEach(function(d) {
@@ -186,7 +202,7 @@ Workstyle.prototype.update = function() {
     }
   })
   
-  this.data.data_2nd = data_replace;
+  this.data_by_month.data_2nd = data_replace;
 
   if(this.graph) {
     /*
@@ -195,10 +211,10 @@ Workstyle.prototype.update = function() {
    
     var stack = d3.layout.stack()
       .values(function(d) {return d.result})
-      .x(function(d) {return d.date})
+      .x(function(d) {return d.key})
       .y(function(d) {return d.hour});
     
-    var layers = stack(this.data.data_2nd);
+    var layers = stack(this.data_by_month.data_2nd);
 
     this.time_scale2.domain(['2013-04-01', '2013-05-01', '2013-06-01', '2013-07-01', '2013-08-01', '2013-09-01', '2013-10-01', '2013-11-01', '2013-12-01', '2014-01-01', '2014-02-01', '2014-03-01']);
     this.hour_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.result, function(d) { return d.y0 + d.y}) })])
@@ -242,17 +258,17 @@ Workstyle.prototype.update = function() {
 
     
     var total = {};
-    this.data.total.result.forEach(function(entry) {
-      total[entry.date] = entry.hour;
+    this.data_by_month.total.result.forEach(function(entry) {
+      total[entry.key] = entry.hour;
     });
     
     var rect = layer.selectAll("rect")
         .data(function(d) { return d.result.map(function(element) { 
           element.tag = d.tag;
-          element.rate = format(element.hour / total[element.date] * 100);
+          element.rate = format(element.hour / total[element.key] * 100);
           return element; }) })
       .enter().append("rect")
-        .attr("x", function(d) { return self.time_scale2(d.date); })
+        .attr("x", function(d) { return self.time_scale2(d.key); })
         .attr("y", function(d) { return self.hour_scale(d.y0 + d.y); })
         .attr("width", this.time_scale2.rangeBand())
         .attr("height", function(d) { return self.hour_scale(d.y0) - self.hour_scale(d.y0 + d.y); })
@@ -260,7 +276,7 @@ Workstyle.prototype.update = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + d.date.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
+        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + d.key.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -274,7 +290,7 @@ Workstyle.prototype.update = function() {
 
     d3.selectAll("svg.barchart .legent").remove();
     var bar_legend = d3.select("svg.barchart").selectAll(".legend")
-        .data(this.data.data_2nd)
+        .data(this.data_by_month.data_2nd)
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
@@ -309,12 +325,12 @@ Workstyle.prototype.update = function() {
       .sort(null)
       .value(function(d) { return d.total });
     
-    var total = this.data.total.total;
+    var total = this.data_by_month.total.total;
     
     d3.selectAll("svg.piechart g g").remove();
     
     var g = d3.select("svg.piechart g").selectAll(".inner_arc")
-      .data(pie(this.data.data_2nd))
+      .data(pie(this.data_by_month.data_2nd))
       .enter().append("g")
         .attr("class", "inner_arc");
         
@@ -342,7 +358,7 @@ Workstyle.prototype.update = function() {
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
 
     g = d3.select("svg.piechart g").selectAll(".outer_arc")
-      .data(pie(this.data.data))
+      .data(pie(this.data_by_month.data))
       .enter().append("g")
         .attr("class", "outer_arc");
         
@@ -372,7 +388,7 @@ Workstyle.prototype.update = function() {
 
     d3.selectAll("svg.piechart .legent").remove();
     var pie_legend = d3.select("svg.piechart").selectAll(".legend")
-        .data(this.data.data_2nd)
+        .data(this.data_by_month.data_2nd)
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
@@ -394,20 +410,22 @@ Workstyle.prototype.update = function() {
   
   if(this.table) {
   
-    this.table.selectAll("thead tr").remove();
+    var month_table = this.table.select("table.month");
     
-    var head_row = this.table.select("thead").append("tr");
+    month_table.selectAll("thead tr").remove();
+    
+    var head_row = month_table.select("thead").append("tr");
     head_row.append("th").text("TAG");
-    head_row.selectAll("th.date").data(this.data.data[0].result)
+    head_row.selectAll("th.date").data(this.data_by_month.data[0].result)
       .enter()
       .append("th")
       .attr("class", "date")
-      .text(function(d) { return d.date.substr(0,7); });
+      .text(function(d) { return d.key.substr(0,7); });
   
-    this.table.selectAll("tbody tr").remove();
-    var tr = this.table.select("tbody")
+    month_table.selectAll("tbody tr").remove();
+    var tr = month_table.select("tbody")
       .selectAll("tr")
-      .data(this.data.data_2nd)
+      .data(this.data_by_month.data_2nd)
       .enter()
       .append("tr");
 
@@ -420,10 +438,10 @@ Workstyle.prototype.update = function() {
       .attr("class", "hour")
       .text(function(d) { return format(d.hour) + "h"; });
 
-    this.table.selectAll("tfoot tr").remove();
-    var foot_row = this.table.select("tfoot").append("tr");
+    month_table.selectAll("tfoot tr").remove();
+    var foot_row = month_table.select("tfoot").append("tr");
     foot_row.append("th").text("TOTAL");
-    foot_row.selectAll("th.total").data(this.data.total.result)
+    foot_row.selectAll("th.total").data(this.data_by_month.total.result)
       .enter()
       .append("th")
       .attr("class", "total hour")
@@ -431,6 +449,97 @@ Workstyle.prototype.update = function() {
 
   }
 }
+
+/**
+ * update visualize
+ *
+ * @param {Object} data
+ *
+ */
+Workstyle.prototype.update_person = function() {
+
+  var self = this;
+  var format = d3.format(".2f");
+  // 第二階層を取得
+  
+  var data_replace = [];
+  
+  this.data_by_person.data.forEach(function(d) {
+    if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
+      d['children'].forEach(function(d) {
+        data_replace.push(d);
+      })
+    } else {
+      data_replace.push(d);
+    }
+  })
+  
+  this.data_by_person.data_2nd = data_replace;
+
+  if(this.table) {
+  
+    var person_table = this.table.select("table.person");
+
+    person_table.selectAll("thead tr").remove();
+    
+    var name_map = {
+        'haruma@uniba.jp' : '菊地',
+        'yui@uniba.jp' : '五木田',
+        'rei@uniba.jp' : '河合',
+        'jun@uniba.jp' : '小松',
+        'sei@uniba.jp' : '片岡',
+        'keiichi@uniba.jp' : '谷藤',
+        'tetsuro@uniba.jp' : '志村',
+        'saki@uniba.jp' : '内山',
+        'noriyuki@uniba.jp' : '清水',
+        'seiya@uniba.jp' : '今野',
+        'hideyuki@uniba.jp' : '齋藤',
+        'andre@uniba.jp' : 'アンドレ',
+        'mori@uniba.jp' : '森',
+        'ogawa@uniba.jp' : '小川',
+        'daichi@uniba.jp' : '佐藤',
+        'fukuma@uniba.jp' : '福間',
+        'mizutani@uniba.jp' : '水谷',
+        'takumi@uniba.jp' : '阿部',
+        'ryo@uniba.jp' : '村山',
+    }
+    
+    var head_row = person_table.select("thead").append("tr");
+    head_row.append("th").text("TAG");
+    head_row.selectAll("th.person").data(this.data_by_person.data[0].result)
+      .enter()
+      .append("th")
+      .attr("class", "date")
+      .text(function(d) { return name_map[d.key]; });
+  
+    person_table.selectAll("tbody tr").remove();
+    var tr = person_table.select("tbody")
+      .selectAll("tr")
+      .data(this.data_by_person.data_2nd)
+      .enter()
+      .append("tr");
+
+    tr.append("th")
+      .text(function(d) { return d.tag; })
+      .style("background-color", function(d) { return self.color_scale(d.tag)});
+    tr.selectAll("td").data(function(d) {return d.result; })
+      .enter()
+      .append("td")
+      .attr("class", "hour")
+      .text(function(d) { return format(d.hour) + "h"; });
+
+    person_table.selectAll("tfoot tr").remove();
+    var foot_row = person_table.select("tfoot").append("tr");
+    foot_row.append("th").text("TOTAL");
+    foot_row.selectAll("th.total").data(this.data_by_person.total.result)
+      .enter()
+      .append("th")
+      .attr("class", "total hour")
+      .text(function(d) { return format(d.hour) + "h"});
+
+  }
+}
+
 
 /**
  * ready時に実行
