@@ -172,6 +172,21 @@ Production.prototype.update = function() {
     foot_row.append("th").text(total.cost_result);
     foot_row.append("th").text(total.profit_result);
 
+    foot_row = table.select("tfoot").append("tr");
+    foot_row.append("th").text("割合");
+    foot_row.append("th");
+    foot_row.append("th");
+    foot_row.append("th");
+    foot_row.append("th");
+    foot_row.append("th").text((total.sales_result / total.sales_result * 100) + "%");
+    foot_row.append("th").text((total.staff_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").text((total.temporary_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").text((total.cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").text((total.profit_result / total.sales_result * 100) + "%");
+
+
+    
+
   }
 }
 
