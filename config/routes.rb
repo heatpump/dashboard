@@ -6,6 +6,8 @@ Dashboard::Engine.routes.draw do
   
   get "api/workstyle/by_month", :to => "workstyle#data_by_month"
   get "api/workstyle/by_person", :to => "workstyle#data_by_person"
+
+  get "api/production", :to => "production#data"
   
   root :to => 'dashboard#index'
 end

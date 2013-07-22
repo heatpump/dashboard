@@ -1,3 +1,35 @@
   <div>
-  <h2>Production</h2>
+    <h2>Production</h2>
+
+    <!--
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#chart" data-toggle="tab">Graph</a></li>
+      <li><a href="#table" data-toggle="tab">Table</a></li>
+    </ul>
+    -->
+    <div id="table" class="tab-content">
+    </div>
+    <hr />
+    <div id="graph" class="tab-content">
+    </div>
   </div>
+
+<script type="text/javascript">
+/**
+ * ready時に実行
+ *
+ */
+$(function(){
+  var production = new Production("#graph", "#table");
+  
+  /*
+  $("#update").on("click", function() { production.load(); return false;})
+  $("form").on("submit", function() { return false;})
+
+  $('.datepicker').datepicker({
+    format: 'yyyy-mm-dd',
+    weekStart: 1
+  })
+  */
+});
+</script>

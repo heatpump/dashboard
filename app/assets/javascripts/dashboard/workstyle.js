@@ -541,19 +541,3 @@ Workstyle.prototype.update_person = function() {
 }
 
 
-/**
- * ready時に実行
- *
- */
-$(function(){
-  var workstyle = new Workstyle("#graph", "#table");
-  
-  $("#update").on("click", function() { workstyle.load(); return false;})
-  $("form").on("submit", function() { return false;})
-
-  $('.datepicker').datepicker({
-    format: 'yyyy-mm-dd',
-    weekStart: 1
-  })
-
-});
