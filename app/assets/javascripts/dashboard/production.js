@@ -102,7 +102,8 @@ Production.prototype.load = function() {
 
 Production.prototype.update = function() {
 
-  var format = d3.format("3,.2f");
+  var rate_format = d3.format("3,.2f");
+  var amount_format = d3.format("3,f");
 
   var self = this;
   
@@ -150,17 +151,16 @@ Production.prototype.update = function() {
 
       tr.append("td").text(d.start_date)
       tr.append("td").text(d.finish_date)
-      tr.append("td").classed("amount", true).text(d.sales_result)
-      tr.append("td").classed("amount", true).text(d.staff_cost_result)
-      tr.append("td").classed("amount", true).text(d.temporary_cost_result)
-      tr.append("td").classed("amount", true).text(d.cost_result)
-      tr.append("td").classed("amount", true).text(d.profit_result)
+      tr.append("td").classed("amount", true).text(amount_format(d.sales_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.staff_cost_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.cost_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.profit_result))
 
     });
 
     
     var total = {};
-    total.total_hour_result = d3.sum(this.data, function(d) { return d.total_hour_result });
     total.sales_result = d3.sum(this.data, function(d) { return d.sales_result });
     total.staff_cost_result = d3.sum(this.data, function(d) { return d.staff_cost_result });
     total.temporary_cost_result = d3.sum(this.data, function(d) { return d.temporary_cost_result });
@@ -173,11 +173,11 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th").classed('amount', true).text(format(total.sales_result));
-    foot_row.append("th").classed('amount', true).text(format(total.staff_cost_result));
-    foot_row.append("th").classed('amount', true).text(format(total.temporary_cost_result));
-    foot_row.append("th").classed('amount', true).text(format(total.cost_result));
-    foot_row.append("th").classed('amount', true).text(format(total.profit_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.sales_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.staff_cost_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.cost_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.profit_result));
 
     foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("割合");
@@ -185,11 +185,11 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th").classed('amount', true).text(format(total.sales_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(format(total.staff_cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(format(total.temporary_cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(format(total.cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(format(total.profit_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.sales_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.staff_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.temporary_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.profit_result / total.sales_result * 100) + "%");
 
 
     
