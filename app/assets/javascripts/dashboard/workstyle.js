@@ -507,6 +507,10 @@ Workstyle.prototype.update_person = function() {
         'ryo@uniba.jp' : '村山',
     }
     
+    var tag_scale = d3.scale.ordinal().domain(['MM', 'SP', 'BO', 'PR', 'LAB', 'ME', 'GROUP', 'Cxxxx', 'Pxxxx', 'CR', 'OTHER']).range([1,2,3,4,5,6,7,8,9,10,11,12]);
+    
+    this.data_by_person.data_2nd = this.data_by_person.data_2nd.sort(function(a, b) { return tag_scale(a.tag) - tag_scale(b.tag)});
+    
     var head_row = person_table.select("thead").append("tr");
     head_row.append("th").text("TAG");
     head_row.selectAll("th.person").data(this.data_by_person.data[0].result)

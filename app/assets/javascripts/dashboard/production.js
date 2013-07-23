@@ -120,7 +120,8 @@ Production.prototype.update = function() {
     var head_row = table.select("thead").append("tr");
     head_row.append("th").text("TAG");
     head_row.append("th").text("PJコード");
-    head_row.append("th").text("PJタイトル");
+    head_row.append("th").text("タイトル");
+    head_row.append("th").text("顧客名");
   
     head_row.append("th").text("開始");
     head_row.append("th").text("終了");
@@ -136,9 +137,10 @@ Production.prototype.update = function() {
       return a.tag.localeCompare(b.tag);
     });
     
+    
     var tr = table.select("tbody")
       .selectAll("tr")
-      .data(this.data)
+      .data(this.data.filter(function(d) { return d.tag.charAt(0) == 'P'}))
       .enter()
       .append("tr");
 
@@ -148,6 +150,7 @@ Production.prototype.update = function() {
       tr.append("th").text(d.tag)
       tr.append("th").text(d.code)
       tr.append("td").text(d.title)
+      tr.append("td").text(d.client)
 
       tr.append("td").text(d.start_date)
       tr.append("td").text(d.finish_date)
@@ -173,6 +176,7 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
+    foot_row.append("th");
     foot_row.append("th").classed('amount', true).text(amount_format(total.sales_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.staff_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
@@ -181,6 +185,7 @@ Production.prototype.update = function() {
 
     foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("割合");
+    foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
