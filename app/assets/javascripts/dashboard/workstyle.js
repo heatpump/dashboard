@@ -113,6 +113,13 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
         .append("g")
           .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
     
+    var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
+    
+    var person_table = usertable.append("table").attr("class", "table table-bordered person");
+    person_table.append("thead");
+    person_table.append("tfoot");
+    person_table.append("tbody");
+    
     // initialize tooltip
     this.tooltip = this.graph
       .append("div")
@@ -133,15 +140,11 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
     this.table.selectAll("table").remove();
     
     var month_table = this.table.append("table").attr("class", "table table-bordered month");
-    var person_table = this.table.append("table").attr("class", "table table-bordered person");
     
     month_table.append("thead");
     month_table.append("tfoot");
     month_table.append("tbody");
 
-    person_table.append("thead");
-    person_table.append("tfoot");
-    person_table.append("tbody");
     
   } else {
     this.table = undefined;
@@ -478,7 +481,7 @@ Workstyle.prototype.update_person = function() {
 
   if(this.table) {
   
-    var person_table = this.table.select("table.person");
+    var person_table = this.graph.select("table.person");
 
     person_table.selectAll("thead tr").remove();
     
@@ -526,7 +529,7 @@ Workstyle.prototype.update_person = function() {
       .enter()
       .append("td")
       .attr("class", "hour")
-      .text(function(d) { return format(d.hour) + "h"; });
+      .text(function(d) { return format(d.hour); });
 
     person_table.selectAll("tfoot tr").remove();
     var foot_row = person_table.select("tfoot").append("tr");
@@ -535,7 +538,7 @@ Workstyle.prototype.update_person = function() {
       .enter()
       .append("th")
       .attr("class", "total hour")
-      .text(function(d) { return format(d.hour) + "h"});
+      .text(function(d) { return format(d.hour)});
 
   }
 }

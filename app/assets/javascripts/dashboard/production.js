@@ -102,6 +102,8 @@ Production.prototype.load = function() {
 
 Production.prototype.update = function() {
 
+  var format = d3.format("3,.2f");
+
   var self = this;
   
   var data_replace = [];
@@ -118,9 +120,9 @@ Production.prototype.update = function() {
     head_row.append("th").text("TAG");
     head_row.append("th").text("PJコード");
     head_row.append("th").text("PJタイトル");
-    head_row.append("th").text("種別");
   
-    head_row.append("th").text("稼働時間");
+    head_row.append("th").text("開始");
+    head_row.append("th").text("終了");
     head_row.append("th").text("売上");
     head_row.append("th").text("人件費");
     head_row.append("th").text("立替費用");
@@ -128,6 +130,11 @@ Production.prototype.update = function() {
     head_row.append("th").text("利益");
   
     table.selectAll("tbody tr").remove();
+    
+    this.data.sort(function(a,b) {
+      return a.tag.localeCompare(b.tag);
+    });
+    
     var tr = table.select("tbody")
       .selectAll("tr")
       .data(this.data)
@@ -140,14 +147,14 @@ Production.prototype.update = function() {
       tr.append("th").text(d.tag)
       tr.append("th").text(d.code)
       tr.append("td").text(d.title)
-      tr.append("td").text(d.project_type)
 
-      tr.append("td").text(d.total_hour_result)
-      tr.append("td").text(d.sales_result)
-      tr.append("td").text(d.staff_cost_result)
-      tr.append("td").text(d.temporary_cost_result)
-      tr.append("td").text(d.cost_result)
-      tr.append("td").text(d.profit_result)
+      tr.append("td").text(d.start_date)
+      tr.append("td").text(d.finish_date)
+      tr.append("td").classed("amount", true).text(d.sales_result)
+      tr.append("td").classed("amount", true).text(d.staff_cost_result)
+      tr.append("td").classed("amount", true).text(d.temporary_cost_result)
+      tr.append("td").classed("amount", true).text(d.cost_result)
+      tr.append("td").classed("amount", true).text(d.profit_result)
 
     });
 
@@ -165,12 +172,12 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th").text(total.total_hour_result);
-    foot_row.append("th").text(total.sales_result);
-    foot_row.append("th").text(total.staff_cost_result);
-    foot_row.append("th").text(total.temporary_cost_result);
-    foot_row.append("th").text(total.cost_result);
-    foot_row.append("th").text(total.profit_result);
+    foot_row.append("th");
+    foot_row.append("th").classed('amount', true).text(format(total.sales_result));
+    foot_row.append("th").classed('amount', true).text(format(total.staff_cost_result));
+    foot_row.append("th").classed('amount', true).text(format(total.temporary_cost_result));
+    foot_row.append("th").classed('amount', true).text(format(total.cost_result));
+    foot_row.append("th").classed('amount', true).text(format(total.profit_result));
 
     foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("割合");
@@ -178,11 +185,11 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th").text((total.sales_result / total.sales_result * 100) + "%");
-    foot_row.append("th").text((total.staff_cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").text((total.temporary_cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").text((total.cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").text((total.profit_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(format(total.sales_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(format(total.staff_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(format(total.temporary_cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(format(total.cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(format(total.profit_result / total.sales_result * 100) + "%");
 
 
     

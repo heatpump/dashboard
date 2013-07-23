@@ -57,3 +57,7 @@ tfoot {
 form {
   margin: 0px;
 }
+
+.amount {
+  text-align: right;
+}

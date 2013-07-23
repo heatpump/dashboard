@@ -16,7 +16,3 @@
 //= require bootstrap/bootstrap-datepicker
 //= require_tree .
 
-$(function() {
-  $(".datepicker").datepicker();
-  
-})
