@@ -64,3 +64,8 @@ table.table td.amount {
 table.table th.amount {
   text-align: right;
 }
+
+table.table tbody tr.p_project.closed {
+  background: yellowgreen;
+  
+}

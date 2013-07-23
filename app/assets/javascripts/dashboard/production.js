@@ -130,6 +130,7 @@ Production.prototype.update = function() {
     head_row.append("th").text("立替費用");
     head_row.append("th").text("外注費・原価");
     head_row.append("th").text("利益");
+    head_row.append("th").text("完了");
   
     table.selectAll("tbody tr").remove();
     
@@ -140,13 +141,15 @@ Production.prototype.update = function() {
     
     var tr = table.select("tbody")
       .selectAll("tr")
-      .data(this.data.filter(function(d) { return d.finished && d.tag.charAt(0) == 'P'}))
+      .data(this.data)
       .enter()
       .append("tr");
 
     tr.each(function(d) {
     
       var tr = d3.select(this);
+      tr.classed("closed", d.closed)
+      tr.classed("p_project", d.tag.charAt(0) == 'P')
       tr.append("th").text(d.tag)
       tr.append("th").text(d.code)
       tr.append("td").text(d.title)
@@ -159,16 +162,17 @@ Production.prototype.update = function() {
       tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.profit_result))
+      tr.append("td").classed("amount", true).text(d.closed ? 'closed' : "")
 
     });
 
-    
+    var target_data = this.data.filter(function(d) { return d.closed && d.tag.charAt(0) == 'P'})
     var total = {};
-    total.sales_result = d3.sum(this.data, function(d) { return d.sales_result });
-    total.staff_cost_result = d3.sum(this.data, function(d) { return d.staff_cost_result });
-    total.temporary_cost_result = d3.sum(this.data, function(d) { return d.temporary_cost_result });
-    total.cost_result = d3.sum(this.data, function(d) { return d.cost_result });
-    total.profit_result = d3.sum(this.data, function(d) { return d.profit_result });
+    total.sales_result = d3.sum(target_data, function(d) { return d.sales_result });
+    total.staff_cost_result = d3.sum(target_data, function(d) { return d.staff_cost_result });
+    total.temporary_cost_result = d3.sum(target_data, function(d) { return d.temporary_cost_result });
+    total.cost_result = d3.sum(target_data, function(d) { return d.cost_result });
+    total.profit_result = d3.sum(target_data, function(d) { return d.profit_result });
 
     var foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("合計");
@@ -182,6 +186,7 @@ Production.prototype.update = function() {
     foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.profit_result));
+    foot_row.append("th");
 
     foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("割合");
@@ -195,6 +200,7 @@ Production.prototype.update = function() {
     foot_row.append("th").classed('amount', true).text(rate_format(total.temporary_cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.profit_result / total.sales_result * 100) + "%");
+    foot_row.append("th");
 
 
     
