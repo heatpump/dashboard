@@ -148,7 +148,7 @@ Production.prototype.update = function() {
     tr.each(function(d) {
     
       var tr = d3.select(this);
-      tr.classed("closed", d.closed)
+      tr.classed("finished", d.finished)
       tr.classed("p_project", d.tag.charAt(0) == 'P')
       tr.append("th").text(d.tag)
       tr.append("th").text(d.code)
@@ -162,11 +162,11 @@ Production.prototype.update = function() {
       tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.profit_result))
-      tr.append("td").classed("amount", true).text(d.closed ? 'closed' : "")
+      tr.append("td").classed("amount", true).text(d.finished ? 'finished' : "")
 
     });
 
-    var target_data = this.data.filter(function(d) { return d.closed && d.tag.charAt(0) == 'P'})
+    var target_data = this.data.filter(function(d) { return d.finished && d.tag.charAt(0) == 'P'})
     var total = {};
     total.sales_result = d3.sum(target_data, function(d) { return d.sales_result });
     total.staff_cost_result = d3.sum(target_data, function(d) { return d.staff_cost_result });
