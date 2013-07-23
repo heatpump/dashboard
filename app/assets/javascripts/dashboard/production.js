@@ -140,7 +140,7 @@ Production.prototype.update = function() {
     
     var tr = table.select("tbody")
       .selectAll("tr")
-      .data(this.data.filter(function(d) { return d.tag.charAt(0) == 'P'}))
+      .data(this.data.filter(function(d) { return d.finished && d.tag.charAt(0) == 'P'}))
       .enter()
       .append("tr");
 
