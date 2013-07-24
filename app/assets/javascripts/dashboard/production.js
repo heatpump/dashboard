@@ -161,7 +161,7 @@ Production.prototype.update = function() {
       tr.append("td").classed("amount", true).text(amount_format(d.staff_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.cost_result))
-      tr.append("td").classed("amount", true).text(amount_format(d.profit_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.sales_result - (d.staff_cost_result + d.temporary_cost_result + d.cost_result)))
       tr.append("td").classed("amount", true).text(d.finished ? 'finished' : "")
 
     });
@@ -172,7 +172,7 @@ Production.prototype.update = function() {
     total.staff_cost_result = d3.sum(target_data, function(d) { return d.staff_cost_result });
     total.temporary_cost_result = d3.sum(target_data, function(d) { return d.temporary_cost_result });
     total.cost_result = d3.sum(target_data, function(d) { return d.cost_result });
-    total.profit_result = d3.sum(target_data, function(d) { return d.profit_result });
+    total.profit_result = d3.sum(target_data, function(d) { return d.sales_result - (d.staff_cost_result + d.temporary_cost_result + d.cost_result) });
 
     var foot_row = table.select("tfoot").append("tr");
     foot_row.append("th").text("合計");
@@ -185,7 +185,7 @@ Production.prototype.update = function() {
     foot_row.append("th").classed('amount', true).text(amount_format(total.staff_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.cost_result));
-    foot_row.append("th").classed('amount', true).text(amount_format(total.profit_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.sales_result - (total.staff_cost_result + total.temporary_cost_result + total.cost_result)));
     foot_row.append("th");
 
     foot_row = table.select("tfoot").append("tr");
@@ -199,7 +199,7 @@ Production.prototype.update = function() {
     foot_row.append("th").classed('amount', true).text(rate_format(total.staff_cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.temporary_cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(rate_format(total.profit_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format((total.sales_result - (total.staff_cost_result + total.temporary_cost_result + total.cost_result)) / total.sales_result * 100) + "%");
     foot_row.append("th");
 
 
