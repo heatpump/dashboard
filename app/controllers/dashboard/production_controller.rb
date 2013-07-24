@@ -6,7 +6,7 @@ module Dashboard
     end
 
     def data
-      date_since = Date.parse('2013-04-01')
+      date_since = Date.parse('2013-03-25')
       date_until = Date.parse('2014-03-31')
       
       result = Project.where(:start_date => date_since .. date_until)
