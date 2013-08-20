@@ -108,6 +108,87 @@ Production.prototype.update = function() {
   var self = this;
   
   var data_replace = [];
+
+  if(this.graph) {
+  
+    
+  
+  
+    var barchart = this.graph.select("svg.barchart");
+
+    var stack = d3.layout.stack()
+      .values(function(d) { return [d.sales_result, d.staff_cost_result, d.cost_result, d.temporary_cost_result, d.profit_result]})
+      .x(function(d, i) {return i})
+      .y(function(d) {return d});
+    
+    var layers = stack(this.data);
+    
+    // points
+    // scale
+    this.x = d3.scale.ordinal()
+      .domain(['sales', 'staff_cost', 'cost', 'temporary_cost', 'profit'])
+      .rangeBands([0, this.width], 0.5, 0.5);
+
+    this.y = d3.scale.linear()
+      .domain([0, 10000000])
+      .range([this.height, 0]);
+
+    this.color = d3.scale.category20b();
+
+    // axis
+
+    var x_axis = d3.svg.axis()
+      .scale(this.x)
+      .orient("bottom");
+
+    var y_axis = d3.svg.axis()
+      .scale(this.y)
+      .orient("left");
+
+    barchart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(" + this.margin.left + "," + (this.height + this.margin.top) + ")")
+      .call(x_axis);
+
+    barchart.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+      .call(y_axis);
+
+    // barchart
+    var layer = barchart.selectAll(".layer")
+        .data(layers)
+      .enter().append("g")
+        .attr("class", "layer")
+        .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top) + ")")
+        .style("fill", function(d,i) { console.log(d); return self.color(i); });
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d })
+      .enter().append("rect")
+        .attr("x", function(d, i) { return self.x(i); })
+        .attr("y", function(d) { return self.y(d.y); })
+        .attr("width", this.x.rangeBand())
+        .attr("height", function(d) { return self.y(d.y) - self.y(d.y0); })
+        
+      .on("mouseover", function(d) {
+        d3.select(this).transition().style("opacity", "0.8");
+        self.tooltip.style("visibility", "visible");
+        self.tooltip.html("<strong>" + d + "</strong>" );
+      })
+      .on("mousemove", function(d) {
+        self.tooltip.style("top", (d3.event.pageY - 10) + "px")
+          .style("left",(d3.event.pageX + 10) + "px");
+      })
+      .on("mouseout", function(d) {
+        d3.select(this).transition().style("opacity", "1");
+        self.tooltip.style("visibility", "hidden");
+        
+      })
+    
+    
+  
+  }
   
   if(this.table) {
   

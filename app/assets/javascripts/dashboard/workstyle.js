@@ -258,8 +258,6 @@ Workstyle.prototype.update_month = function() {
         .attr("class", "layer")
         .style("fill", function(d) { return self.color_scale(d.tag); });
     
-
-    
     var total = {};
     this.data_by_month.total.result.forEach(function(entry) {
       total[entry.key] = entry.hour;

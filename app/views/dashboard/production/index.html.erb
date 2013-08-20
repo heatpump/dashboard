@@ -1,16 +1,27 @@
   <div>
     <h2>Production</h2>
 
+    <div class="well">
+
+      <form class="form-inline">
+          Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
+          <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
+
+          <button class="btn btn-primary" id="update">Update</button>
+      </form>
+
+    </div>
+
     <!--
     <ul class="nav nav-tabs">
       <li class="active"><a href="#chart" data-toggle="tab">Graph</a></li>
       <li><a href="#table" data-toggle="tab">Table</a></li>
     </ul>
     -->
-    <div id="table" class="tab-content">
+    <div id="graph" class="tab-content">
     </div>
     <hr />
-    <div id="graph" class="tab-content">
+    <div id="table" class="tab-content">
     </div>
   </div>
 
