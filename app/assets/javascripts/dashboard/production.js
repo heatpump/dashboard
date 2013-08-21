@@ -95,6 +95,50 @@ Production.prototype.load = function() {
     console.log(response);
     self.data = response;
     
+    // sales_data, staff_cost_data, cost_data, temporary_cost_data, profit_data にわける
+    sales_data = [];
+    cost_data = [];
+    staff_cost_data = [];
+    temporary_cost_data = [];
+    profit_data = [];
+    
+    
+    response.forEach(function(d) {
+
+      if (d.finished && d.tag.charAt(0) == 'P') {
+        sales_data.push({
+          key: d.tag,
+          values: [
+          { 
+            y: d.sales_result,
+            x: 'sales',
+          },
+          { 
+            y: d.cost_result,
+            x: 'cost',
+          },
+          { 
+            y: d.staff_cost_result,
+            x: 'staff_cost',
+          },
+          { 
+            y: d.temporary_cost_result,
+            x: 'temporary_cost',
+          },
+          { 
+            y: d.profit_result,
+            x: 'profit',
+          },
+          
+          ],
+          project: d,
+        });
+      }
+      
+    })
+    
+    self.sales_data = sales_data;
+    
     self.update();
   });
 
@@ -117,23 +161,31 @@ Production.prototype.update = function() {
     var barchart = this.graph.select("svg.barchart");
 
     var stack = d3.layout.stack()
-      .values(function(d) { return [d.sales_result, d.staff_cost_result, d.cost_result, d.temporary_cost_result, d.profit_result]})
-      .x(function(d, i) {return i})
-      .y(function(d) {return d});
+  //    .offset("wiggle")
+      .values(function(d) { return d.values })
+      .x(function(d, i) {return d.x})
+      .y(function(d) { return d.y });
     
-    var layers = stack(this.data);
-    
-    // points
+    var layers = stack(this.sales_data);
+
+    var total_sales = d3.sum(layers, function(d) { return d.project.sales_result; })
+    var total_staff_cost = d3.sum(layers, function(d) { return d.project.staff_cost_result; })
+    var total_cost = d3.sum(layers, function(d) { return d.project.cost_result; })
+    var total_temporary_cost = d3.sum(layers, function(d) { return d.project.temporary_cost_result; })
+    var total_profit = d3.sum(layers, function(d) { return d.project.profit_result; })
+        
     // scale
     this.x = d3.scale.ordinal()
-      .domain(['sales', 'staff_cost', 'cost', 'temporary_cost', 'profit'])
+      .domain(['sales', 'cost'])
       .rangeBands([0, this.width], 0.5, 0.5);
 
     this.y = d3.scale.linear()
-      .domain([0, 10000000])
+      .domain([0, Math.max(total_sales, total_staff_cost + total_cost + total_temporary_cost)])
       .range([this.height, 0]);
 
     this.color = d3.scale.category20b();
+    
+    this.base_color = d3.scale.category10();
 
     // axis
 
@@ -155,26 +207,17 @@ Production.prototype.update = function() {
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
       .call(y_axis);
 
+
     // barchart
     var layer = barchart.selectAll(".layer")
         .data(layers)
       .enter().append("g")
         .attr("class", "layer")
         .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top) + ")")
-        .style("fill", function(d,i) { console.log(d); return self.color(i); });
-
-    var rect = layer.selectAll("rect")
-        .data(function(d) { return d })
-      .enter().append("rect")
-        .attr("x", function(d, i) { return self.x(i); })
-        .attr("y", function(d) { return self.y(d.y); })
-        .attr("width", this.x.rangeBand())
-        .attr("height", function(d) { return self.y(d.y) - self.y(d.y0); })
-        
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d + "</strong>" );
+        self.tooltip.html("<strong>" + d.key + "_" + d.project.code + "</strong><br />売上:" + d.project.sales_result + "円<br />人件費:" + d.project.staff_cost_result + "円<br />外注費:" + d.project.cost_result + "円<br />物品購買費:" + d.project.temporary_cost_result + "円<br />粗利益:" + d.project.profit_result + "円(" + d.project.profit_rate_result + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -185,6 +228,24 @@ Production.prototype.update = function() {
         self.tooltip.style("visibility", "hidden");
         
       })
+    
+    var y_shift = {
+      sales: 0,
+      staff_cost: 0,
+      cost: total_staff_cost,
+      temporary_cost: total_staff_cost + total_cost,
+      profit: total_staff_cost + total_cost + total_temporary_cost
+    }
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d.values })
+      .enter().append("rect")
+        .attr("x", function(d, i) { return self.x(d.x == 'sales' ? 'sales' : 'cost'); })
+        .attr("y", function(d) { return self.y(d.y0) - (self.y(0) - self.y(d.y)) - (self.y(0) - self.y(y_shift[d.x])); })
+        .attr("width", this.x.rangeBand())
+        .attr("height", function(d) { return self.y(0) - self.y(d.y) ; })
+        .style("fill", function(d,i) { return self.base_color(i); })
+        
     
     
   
