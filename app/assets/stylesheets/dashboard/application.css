@@ -69,3 +69,7 @@ table.table tbody tr.p_project.finished {
   background: yellowgreen;
   
 }
+
+.data-tooltip table td {
+  text-align: right;
+}

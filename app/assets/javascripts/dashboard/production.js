@@ -21,7 +21,7 @@ function Production(graphSelector, tableSelector) {
   this.graph = undefined;
   this.table = undefined;
   
-  this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+  this.margin = {top: 20, right: 320, bottom: 40, left: 100};
   this.width = 1170 - this.margin.left - this.margin.right;
   this.height = 500 - this.margin.top - this.margin.bottom;
   
@@ -57,7 +57,7 @@ Production.prototype.attachTo = function(graphSelector, tableSelector) {
         .style("visibility", "hidden")
         .text("a simple tooltip")
         .attr("class", "data-tooltip");
-        
+
   } else {
     this.graph = undefined;
   }
@@ -155,9 +155,6 @@ Production.prototype.update = function() {
 
   if(this.graph) {
   
-    
-  
-  
     var barchart = this.graph.select("svg.barchart");
 
     var stack = d3.layout.stack()
@@ -173,7 +170,30 @@ Production.prototype.update = function() {
     var total_cost = d3.sum(layers, function(d) { return d.project.cost_result; })
     var total_temporary_cost = d3.sum(layers, function(d) { return d.project.temporary_cost_result; })
     var total_profit = d3.sum(layers, function(d) { return d.project.profit_result; })
-        
+    
+    
+    var data_container = barchart.append("g")
+      .attr("class", "data")
+      .attr("text-anchor", "end")
+      .attr("font-size", "12pt")
+      .attr("transform", "translate(1060,80)")
+
+    data_container.append("text").attr("x", -160).attr("y", 0).text("売上高 合計:");
+    data_container.append("text").attr("y", 0).text(numberFormat(total_sales) + " 円");
+    data_container.append("text").attr("x", -160).attr("y", 80).text("人件費 合計:");
+    data_container.append("text").attr("y", 80).text(numberFormat(total_staff_cost) + " 円");
+    data_container.append("text").attr("y", 110).text("(" + (Math.floor(total_staff_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("x", -160).attr("y", 160).text("外注費 合計:");
+    data_container.append("text").attr("y", 160).text(numberFormat(total_cost) + " 円");
+    data_container.append("text").attr("y", 190).text("(" + (Math.floor(total_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("x", -160).attr("y", 240).text("材料費 合計:");
+    data_container.append("text").attr("y", 240).text(numberFormat(total_temporary_cost) + " 円");
+    data_container.append("text").attr("y", 270).text("(" + (Math.floor(total_temporary_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("x", -160).attr("y", 320).text("粗利益 合計:");
+    data_container.append("text").attr("y", 320).text(numberFormat(total_profit) + " 円");
+    data_container.append("text").attr("y", 350).text("(" + (Math.floor(total_profit / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    
+    
     // scale
     this.x = d3.scale.ordinal()
       .domain(['sales', 'cost'])
@@ -217,7 +237,7 @@ Production.prototype.update = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.key + "_" + d.project.code + "</strong><br />売上:" + d.project.sales_result + "円<br />人件費:" + d.project.staff_cost_result + "円<br />外注費:" + d.project.cost_result + "円<br />物品購買費:" + d.project.temporary_cost_result + "円<br />粗利益:" + d.project.profit_result + "円(" + d.project.profit_rate_result + "%)" );
+        self.tooltip.html("<table><thead><tr><th colspan=\"2\"><strong>" + d.key + "_" + d.project.code + "</strong></th></tr></thead><tbody><tr><th>売上</th><td>" + numberFormat(d.project.sales_result) + "円</td></tr><tr><th>人件費</th><td>" + numberFormat(d.project.staff_cost_result) + "円</td></tr><tr><th>外注費</th><td>" + numberFormat(d.project.cost_result) + "円</td></tr><tr><th>材料費</th><td>" + numberFormat(d.project.temporary_cost_result) + "円</td></tr><tr><th>粗利益</th><td>" + numberFormat(d.project.profit_result) + "円</td></tr><tr><th>粗利率</th><td>" + d.project.profit_rate_result +"%</td></tr></tbody></table>" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -241,10 +261,14 @@ Production.prototype.update = function() {
         .data(function(d) { return d.values })
       .enter().append("rect")
         .attr("x", function(d, i) { return self.x(d.x == 'sales' ? 'sales' : 'cost'); })
-        .attr("y", function(d) { return self.y(d.y0) - (self.y(0) - self.y(d.y)) - (self.y(0) - self.y(y_shift[d.x])); })
+        .attr("y", function(d) { return self.y(d.y0) -  (self.y(0) - self.y(y_shift[d.x])); })
         .attr("width", this.x.rangeBand())
-        .attr("height", function(d) { return self.y(0) - self.y(d.y) ; })
         .style("fill", function(d,i) { return self.base_color(i); })
+        .attr("height", 0)
+        .transition()
+        .duration(500)
+        .attr("y", function(d) { return self.y(d.y0) - (self.y(0) - self.y(d.y)) - (self.y(0) - self.y(y_shift[d.x])); })
+        .attr("height", function(d) { return self.y(0) - self.y(d.y) ; })
         
     
     
@@ -269,9 +293,9 @@ Production.prototype.update = function() {
     head_row.append("th").text("終了");
     head_row.append("th").text("売上");
     head_row.append("th").text("人件費");
-    head_row.append("th").text("立替費用");
-    head_row.append("th").text("外注費・原価");
-    head_row.append("th").text("利益");
+    head_row.append("th").text("外注費");
+    head_row.append("th").text("材料費");
+    head_row.append("th").text("粗利益");
     head_row.append("th").text("完了");
   
     table.selectAll("tbody tr").remove();
@@ -301,8 +325,8 @@ Production.prototype.update = function() {
       tr.append("td").text(d.finish_date)
       tr.append("td").classed("amount", true).text(amount_format(d.sales_result))
       tr.append("td").classed("amount", true).text(amount_format(d.staff_cost_result))
-      tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.cost_result))
+      tr.append("td").classed("amount", true).text(amount_format(d.temporary_cost_result))
       tr.append("td").classed("amount", true).text(amount_format(d.sales_result - (d.staff_cost_result + d.temporary_cost_result + d.cost_result)))
       tr.append("td").classed("amount", true).text(d.finished ? 'finished' : "")
 
@@ -344,9 +368,9 @@ Production.prototype.update = function() {
     foot_row.append("th").classed('amount', true).text(rate_format((total.sales_result - (total.staff_cost_result + total.temporary_cost_result + total.cost_result)) / total.sales_result * 100) + "%");
     foot_row.append("th");
 
-
-    
-
   }
 }
 
+var numberFormat = function(num){
+  return num.toString().replace(/([\d]+?)(?=(?:\d{3})+$)/g, function(t){ return t + ','; });
+}
