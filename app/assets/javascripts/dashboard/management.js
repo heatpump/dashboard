@@ -105,9 +105,13 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
  */
 Management.prototype.load = function() {
 
-  console.log("load");
   var self = this;
   var query = new google.visualization.Query(this.api);
+
+  this.label_scale = d3.scale.ordinal()
+    .domain(['B', 'C', 'D', 'E', 'F'])
+    .range(['チャレンジ予算', '改善予算', '増床特別予算', '維持予算', '外注費'])
+
 
   query.setQuery("select A, E, C, B, D, F");
   query.send(function(response) {
@@ -127,6 +131,9 @@ Management.prototype.load = function() {
     
     d3.keys(data).forEach(function(key) {
       data[key] = d3.entries(data[key]);
+      data[key].forEach(function(entry) {
+        entry.label = self.label_scale(key);
+      })
     });
     
     data = d3.entries(data);
@@ -142,6 +149,7 @@ Management.prototype.update = function() {
 
   var self = this;
   var format = d3.format(".2f");
+  var amount_format = d3.format("3,f");
 
   // 第二階層を取得
   
@@ -197,7 +205,7 @@ Management.prototype.update = function() {
         .attr("y", 6)
         .attr("dy", ".71em")
         .attr("text-anchor", "end")
-        .text("Yen");
+        .text("(円)");
     
     var self = this;
     this.graph.select("svg.barchart g").selectAll(".layer").remove();
@@ -224,7 +232,7 @@ Management.prototype.update = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.key + "</strong><br />" + d.value );
+        self.tooltip.html("<strong>" + d.key + " " + d.label + "</strong><br />" + amount_format(d.value) + "円" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -267,6 +275,6 @@ Management.prototype.update = function() {
     var tr = self.table.select('table tbody').selectAll("tr").data(self.data).enter().append("tr");
     tr.append("th").text(function(d) { return self.label_scale(d.key); });
     var append_td = tr.selectAll("td").data(function(d) { return d.value; }).enter();
-    append_td.append("td").text(function(d) { return d.value; });
+    append_td.append("td").classed("amount", true).text(function(d) { return amount_format(d.value); });
   }
 }
