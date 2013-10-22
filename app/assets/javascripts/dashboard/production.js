@@ -169,7 +169,8 @@ Production.prototype.update = function() {
     var total_staff_cost = d3.sum(layers, function(d) { return d.project.staff_cost_result; })
     var total_cost = d3.sum(layers, function(d) { return d.project.cost_result; })
     var total_temporary_cost = d3.sum(layers, function(d) { return d.project.temporary_cost_result; })
-    var total_profit = d3.sum(layers, function(d) { return d.project.profit_result; })
+//    var total_profit = d3.sum(layers, function(d) { return d.project.profit_result; })
+    var total_profit = d3.sum(this.sales_data, function(d) { return d.project.sales_result - (d.project.staff_cost_result + d.project.temporary_cost_result + d.project.cost_result) });
     
     
     var data_container = barchart.append("g")
@@ -182,16 +183,16 @@ Production.prototype.update = function() {
     data_container.append("text").attr("y", 0).text(numberFormat(total_sales) + " 円");
     data_container.append("text").attr("x", -160).attr("y", 80).text("人件費 合計:");
     data_container.append("text").attr("y", 80).text(numberFormat(total_staff_cost) + " 円");
-    data_container.append("text").attr("y", 110).text("(" + (Math.floor(total_staff_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("y", 110).text("(" + rate_format(total_staff_cost / total_sales * 100) + " %)").attr("fill", "darkgray");
     data_container.append("text").attr("x", -160).attr("y", 160).text("外注費 合計:");
     data_container.append("text").attr("y", 160).text(numberFormat(total_cost) + " 円");
-    data_container.append("text").attr("y", 190).text("(" + (Math.floor(total_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("y", 190).text("(" + rate_format(total_cost / total_sales * 100) + " %)").attr("fill", "darkgray");
     data_container.append("text").attr("x", -160).attr("y", 240).text("材料費 合計:");
     data_container.append("text").attr("y", 240).text(numberFormat(total_temporary_cost) + " 円");
-    data_container.append("text").attr("y", 270).text("(" + (Math.floor(total_temporary_cost / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("y", 270).text("(" + rate_format(total_temporary_cost / total_sales * 100) + " %)").attr("fill", "darkgray");
     data_container.append("text").attr("x", -160).attr("y", 320).text("粗利益 合計:");
     data_container.append("text").attr("y", 320).text(numberFormat(total_profit) + " 円");
-    data_container.append("text").attr("y", 350).text("(" + (Math.floor(total_profit / total_sales * 1000) / 10) + " %)").attr("fill", "darkgray");
+    data_container.append("text").attr("y", 350).text("(" + rate_format(total_profit / total_sales * 100) + " %)").attr("fill", "darkgray");
     
     
     // scale
@@ -204,8 +205,12 @@ Production.prototype.update = function() {
       .range([this.height, 0]);
 
     this.color = d3.scale.category20b();
+    this.color = d3.scale.ordinal()
+      .range(['#3A88FE', '#006D8F', '#0042AA', '#6EC9DB', '#FF8647']);
     
     this.base_color = d3.scale.category10();
+    this.base_color = d3.scale.ordinal()
+      .range(['#3A88FE', '#006D8F', '#0042AA', '#6EC9DB', '#FF8647']);
 
     // axis
 
@@ -285,9 +290,7 @@ Production.prototype.update = function() {
 
     var head_row = table.select("thead").append("tr");
     head_row.append("th").text("TAG");
-    head_row.append("th").text("PJコード");
-    head_row.append("th").text("タイトル");
-    head_row.append("th").text("顧客名");
+    head_row.append("th").text("PJコード / タイトル");
   
     head_row.append("th").text("開始");
     head_row.append("th").text("終了");
@@ -317,9 +320,7 @@ Production.prototype.update = function() {
       tr.classed("finished", d.finished)
       tr.classed("p_project", d.tag.charAt(0) == 'P')
       tr.append("th").text(d.tag)
-      tr.append("th").text(d.code)
-      tr.append("td").text(d.title)
-      tr.append("td").text(d.client)
+      tr.append("th").html(d.code + "<br><span style=\"font-weight: normal\">" + d.title + "</span>") 
 
       tr.append("td").text(d.start_date)
       tr.append("td").text(d.finish_date)
@@ -345,12 +346,10 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th");
-    foot_row.append("th");
     foot_row.append("th").classed('amount', true).text(amount_format(total.sales_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.staff_cost_result));
-    foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.cost_result));
+    foot_row.append("th").classed('amount', true).text(amount_format(total.temporary_cost_result));
     foot_row.append("th").classed('amount', true).text(amount_format(total.sales_result - (total.staff_cost_result + total.temporary_cost_result + total.cost_result)));
     foot_row.append("th");
 
@@ -359,12 +358,10 @@ Production.prototype.update = function() {
     foot_row.append("th");
     foot_row.append("th");
     foot_row.append("th");
-    foot_row.append("th");
-    foot_row.append("th");
     foot_row.append("th").classed('amount', true).text(rate_format(total.sales_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.staff_cost_result / total.sales_result * 100) + "%");
-    foot_row.append("th").classed('amount', true).text(rate_format(total.temporary_cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format(total.cost_result / total.sales_result * 100) + "%");
+    foot_row.append("th").classed('amount', true).text(rate_format(total.temporary_cost_result / total.sales_result * 100) + "%");
     foot_row.append("th").classed('amount', true).text(rate_format((total.sales_result - (total.staff_cost_result + total.temporary_cost_result + total.cost_result)) / total.sales_result * 100) + "%");
     foot_row.append("th");
 
