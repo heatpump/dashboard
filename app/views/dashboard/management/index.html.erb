@@ -2,14 +2,12 @@
   <h2>Management</h2>
     <div class="well">
 
-    <!--
       <form class="form-inline">
-          Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
-          <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
-
+        <!--
+          Date: <input type="text" name="range" id="range" class="rangepicker span2" />
           <button class="btn btn-primary" id="update">Update</button>
+        -->
       </form>
-    -->
 
     </div>
 
@@ -43,5 +41,6 @@
   }
   google.setOnLoadCallback(onLoadVisualizationApi); 
 
+  $('.rangepicker').daterangepicker();
 
 </script>

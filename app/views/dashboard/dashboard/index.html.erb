@@ -1,18 +1,35 @@
   <div class="row">
     <div class="span6 clearfix">
-      <h2>Management</h2>
-      <p class="thumbnails span6"><a href="/dashboard/management" class="thumbnail"><img data-src="holder.js/460x230" alt=""></a></p>
+      <a href="/dashboard/management"><h2>Management</h2></a>
+      <div id="management-graph" class="thumbnail"></div>
     </div>
     <div class="span6">
-      <h2>Production</h2>
-      <p class="thumbnails span6"><a href="/dashboard/production" class="thumbnail"><img data-src="holder.js/460x230" alt=""></a></p>
+      <a href="/dashboard/production"><h2>Production</h2></a>
+      <div id="production-graph" class="thumbnail"></div>
    </div>
     <div class="span6">
-      <h2>Flagship</h2>
-      <p class="thumbnails span6"><a href="/dashboard/flagship" class="thumbnail"><img data-src="holder.js/460x230" alt=""></a></p>
+      <a href="/dashboard/flagship"><h2>Flagship</h2></a>
+      <div id="flagship-graph" class="thumbnail"><img data-src="holder.js/460x230" /></div>
     </div>
     <div class="span6">
-      <h2>Workstyle</h2><p></p>
-      <p class="thumbnails span6"><a href="/dashboard/workstyle" class="thumbnail"><img data-src="holder.js/460x230" alt=""></a></p>
+      <a href="/dashboard/workstyle"><h2>Workstyle</h2></a>
+      <div id="workstyle-graph" class="thumbnail"></div>
     </div>
   </div>
+
+<script type="text/javascript">
+/**
+ * ready時に実行
+ *
+ */
+  google.load("visualization", "1");
+  function onLoadVisualizationApi() {
+    var management = new Management('#management-graph', undefined, true);
+  }
+  google.setOnLoadCallback(onLoadVisualizationApi); 
+
+  var production = new Production('#production-graph', undefined, true);
+  //var flagship = new Flagship('#flagship-graph', undefined, true);
+  var workstyle = new Workstyle('#workstyle-graph', undefined, true);
+
+</script>

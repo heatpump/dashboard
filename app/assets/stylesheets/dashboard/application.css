@@ -12,6 +12,8 @@
  *= require_self
  *= require bootstrap/bootstrap
  *= require bootstrap/bootstrap-responsive
+ *= require daterangepicker-bs2
+
  */
 
 

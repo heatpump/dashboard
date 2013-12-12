@@ -12,26 +12,37 @@
  * 
  * @constructor
  */
-function Workstyle(graphSelector, tableSelector) {
+function Workstyle(graphSelector, tableSelector, dashboard) {
   
   /**
    * Constants / Configurations
    *
    */
-  
+
   // datasource url
   this.api_by_month = "/dashboard/api/workstyle/by_month.json";
   this.api_by_person = "/dashboard/api/workstyle/by_person.json";
   this.api_check = "/dashboard/api/workstyle/by_person.json";
   
+  // select
+  this.graph = undefined;
+  this.table = undefined;
+  this.dashboard = dashboard;
+
   // data holder
   this.data_by_month = undefined;
   this.data_by_person = undefined;
   this.data_check = undefined;
 
-  this.margin = {top: 20, right: 20, bottom: 40, left: 100};
-  this.width = 1170 - this.margin.left - this.margin.right;
-  this.height = 500 - this.margin.top - this.margin.bottom;
+  if (this.dashboard) {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 460 - this.margin.left - this.margin.right;
+    this.height = 230 - this.margin.top - this.margin.bottom;
+  } else {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 1170 - this.margin.left - this.margin.right;
+    this.height = 500 - this.margin.top - this.margin.bottom;
+  }
     
   // d3 elements
   this.time_scale = d3.time.scale()
@@ -78,9 +89,6 @@ function Workstyle(graphSelector, tableSelector) {
       "rgb(255,252,65)",
       "rgb(200,200,200)"]);
     
-  // select
-  this.graph = undefined;
-  this.table = undefined;
   
   this.attachTo(graphSelector, tableSelector);
   this.load();
@@ -99,12 +107,14 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
     // clear
     this.graph.selectAll("div").remove();
 
-    var barchart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "barchart").append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-          .attr("class", "barchart")
-        .append("g")
-          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+    if (!this.dashboard) {
+      var barchart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "barchart").append("svg")
+            .attr("width", this.width + this.margin.left + this.margin.right)
+            .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .attr("class", "barchart")
+          .append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+    }
     
     var piechart = this.graph.append("div").attr("class", "tab-pane").attr("id", "piechart").append("svg")
           .attr("width", this.width + this.margin.left + this.margin.right)
@@ -113,13 +123,15 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
         .append("g")
           .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
     
-    var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
+    if (!this.dashboard) {
+      var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
     
-    var person_table = usertable.append("table").attr("class", "table table-bordered person");
-    person_table.append("thead");
-    person_table.append("tfoot");
-    person_table.append("tbody");
-    
+      var person_table = usertable.append("table").attr("class", "table table-bordered person");
+      person_table.append("thead");
+      person_table.append("tfoot");
+      person_table.append("tbody");
+    }
+
     // initialize tooltip
     this.tooltip = this.graph
       .append("div")
@@ -160,9 +172,9 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
 Workstyle.prototype.load = function() {
   var self = this;
   
-  var since = $("#since").val();
-  var until = $("#until").val();
-  var username = $("#username").val();
+  var since = $("#since").val() || '2013-04-01';
+  var until = $("#until").val() || '2014-03-31';
+  var username = $("#username").val() || '';
   
   d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
@@ -189,6 +201,7 @@ Workstyle.prototype.load = function() {
 Workstyle.prototype.update_month = function() {
 
   var format = d3.format(".2f");
+    var self = this;
 
   // 第二階層を取得
   
@@ -207,7 +220,7 @@ Workstyle.prototype.update_month = function() {
   
   this.data_by_month.data_2nd = data_replace;
 
-  if(this.graph) {
+  if(this.graph && !this.dashboard) {
     /*
      * barchart
      */
@@ -250,7 +263,6 @@ Workstyle.prototype.update_month = function() {
         .attr("text-anchor", "end")
         .text("Hours");
     
-    var self = this;
     this.graph.select("svg.barchart g").selectAll(".layer").remove();
     var layer = this.graph.select("svg.barchart g").selectAll(".layer")
         .data(layers)
@@ -308,19 +320,21 @@ Workstyle.prototype.update_month = function() {
         .attr("dy", ".35em")
         .style("text-anchor", "end")
         .text(function(d) { return d.tag; });
+  }
 
+  if(this.graph) {
     /*
      * piechart (累計割合)
      */
-    var radius = 200;
+    var radius = this.height / 2.5;
     
     var inner_arc = d3.svg.arc()
-      .outerRadius(200)
+      .outerRadius(radius)
       .innerRadius(0);
 
     var outer_arc = d3.svg.arc()
-      .outerRadius(250)
-      .innerRadius(210);
+      .outerRadius(radius * 1.25)
+      .innerRadius(radius * 1.05);
 
     var pie = d3.layout.pie()
       .sort(null)
@@ -328,9 +342,9 @@ Workstyle.prototype.update_month = function() {
     
     var total = this.data_by_month.total.total;
     
-    d3.selectAll("svg.piechart g g").remove();
+    this.graph.selectAll("svg.piechart g g").remove();
     
-    var g = d3.select("svg.piechart g").selectAll(".inner_arc")
+    var g = this.graph.select("svg.piechart g").selectAll(".inner_arc")
       .data(pie(this.data_by_month.data_2nd))
       .enter().append("g")
         .attr("class", "inner_arc");
@@ -352,12 +366,14 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
-    g.append("text")
-        .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return format(d.data.total / total * 100) + "%"; });
-
+    if (!this.dashboard) {
+      g.append("text")
+          .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
+          .attr("dy", ".35em")
+          .style("text-anchor", "middle")
+          .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+    }
+    
     g = d3.select("svg.piechart g").selectAll(".outer_arc")
       .data(pie(this.data_by_month.data))
       .enter().append("g")
@@ -380,32 +396,35 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
-    g.append("text")
+    if (!this.dashboard) {
+      g.append("text")
         .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+    }
 
-
-    d3.selectAll("svg.piechart .legent").remove();
-    var pie_legend = d3.select("svg.piechart").selectAll(".legend")
-        .data(this.data_by_month.data_2nd)
-      .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
-  
-    pie_legend.append("rect")
-        .attr("x", 140)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", function(d) { return self.color_scale(d.tag) } );
-  
-    pie_legend.append("text")
-        .attr("x", 130)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function(d) { return d.tag; });
+    if (!this.dashboard) {
+      d3.selectAll("svg.piechart .legent").remove();
+      var pie_legend = d3.select("svg.piechart").selectAll(".legend")
+          .data(this.data_by_month.data_2nd)
+        .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+    
+      pie_legend.append("rect")
+          .attr("x", 140)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d) { return self.color_scale(d.tag) } );
+    
+      pie_legend.append("text")
+          .attr("x", 130)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) { return d.tag; });
+    }
 
   }
   
