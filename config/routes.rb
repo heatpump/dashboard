@@ -9,5 +9,7 @@ Dashboard::Engine.routes.draw do
 
   get "api/production", :to => "production#data"
   
+  get "api/flagship", :to => "flagship#data"
+  
   root :to => 'dashboard#index'
 end

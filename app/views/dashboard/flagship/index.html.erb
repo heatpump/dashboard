@@ -1,3 +1,40 @@
   <div>
   <h2>Flagship</h2>
+    <div class="well">
+
+      <form class="form-inline">
+          Span: <input type="text" name="range" id="range" class="rangepicker" />&nbsp;
+
+          Count by: <select name="by" id="by"><option>Month</option><option>Year</option><option>Day</option></select>&nbsp;
+
+          Group by: <select name="item" id="item"><option>Staff</option><option>Account</option><option>Contents</option></select>&nbsp;
+
+          <button class="btn btn-primary" id="update">Update</button>
+      </form>
+    </div>
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#barchart" data-toggle="tab">動画視聴数</a></li>
+    </ul>
+
+    <div id="graph" class="tab-content">
+    </div>
+    <hr />
+    <div id="table" class="tab-content">
+    </div>
   </div>
+
+<script type="text/javascript">
+/**
+ * ready時に実行
+ *
+ */
+  var flagship = new Flagship('#graph', '#table');
+
+  $('.rangepicker').daterangepicker({
+  	format: 'YYYY-MM-DD',
+  	startDate: '2013-04-01',
+  	endDate: '2014-03-31',
+  });
+
+</script>
