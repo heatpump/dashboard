@@ -9,7 +9,7 @@
    </div>
     <div class="span6">
       <a href="/dashboard/flagship"><h2>Flagship</h2></a>
-      <div id="flagship-graph" class="thumbnail"><img data-src="holder.js/460x230" /></div>
+      <div id="flagship-graph" class="thumbnail"></div>
     </div>
     <div class="span6">
       <a href="/dashboard/workstyle"><h2>Workstyle</h2></a>
@@ -29,7 +29,7 @@
   google.setOnLoadCallback(onLoadVisualizationApi); 
 
   var production = new Production('#production-graph', undefined, true);
-  //var flagship = new Flagship('#flagship-graph', undefined, true);
+  var flagship = new Flagship('#flagship-graph', undefined, true);
   var workstyle = new Workstyle('#workstyle-graph', undefined, true);
 
 </script>

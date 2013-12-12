@@ -2,4 +2,6 @@
 
 class ServiceContent < ActiveRecord::Base
 
+	has_many :service_counts
+
 end

@@ -20,7 +20,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
    */
 
   // datasource url
-  this.api = "/dashboard/api/flagship/accounts.json";
+  this.api = "/dashboard/api/flagship.json";
   
   // select
   this.graph = undefined;
@@ -48,7 +48,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
   this.time_scale2 = d3.scale.ordinal()
     .rangeRoundBands([0, this.width], .3);
     
-  this.hour_scale = d3.scale.linear()
+  this.count_scale = d3.scale.linear()
     .domain([0, 2000])
     .range([this.height, 0]);
   this.color_scale = d3.scale.category20c();
@@ -138,5 +138,106 @@ Flagship.prototype.load = function() {
  *
  */
 Flagship.prototype.update = function() {
+  var format = d3.format(".2f");
+    var self = this;
+
+  if(this.graph) {
+    /*
+     * barchart
+     */
+   
+    var stack = d3.layout.stack()
+      .values(function(d) {return d.result})
+      .x(function(d) {return d.key})
+      .y(function(d) {return d.hour});
+    
+    var layers = stack(this.data);
+
+    this.time_scale.domain(['2013-04-01', '2013-05-01', '2013-06-01', '2013-07-01', '2013-08-01', '2013-09-01', '2013-10-01', '2013-11-01', '2013-12-01', '2014-01-01', '2014-02-01', '2014-03-01']);
+    this.count_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.result, function(d) { return d.y0 + d.y}) })])
+
+    var time_axis = d3.svg.axis()
+      .scale(this.time_scale2)
+      .orient("bottom");
+      
+    var count_axis = d3.svg.axis()
+      .scale(this.count_scale)
+      .orient("left");
+    
+    this.graph.select("svg.barchart").selectAll("g.axis").remove();
+    
+    this.graph.select("svg.barchart").append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")")
+      .call(time_axis);
+
+    this.graph.select("svg.barchart").append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+      .call(count_axis);
+      
+    d3.select(".y.axis")
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .attr("text-anchor", "end")
+        .text("Views");
+    
+    this.graph.select("svg.barchart g").selectAll(".layer").remove();
+    var layer = this.graph.select("svg.barchart g").selectAll(".layer")
+        .data(layers)
+      .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d) { return self.color_scale(d.tag); });
+
+/*    
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d.result.map(function(element) { 
+          element.tag = d.tag;
+          element.rate = format(element.hour / total[element.key] * 100);
+          return element; }) })
+      .enter().append("rect")
+        .attr("x", function(d) { return self.time_scale2(d.key); })
+        .attr("y", function(d) { return self.hour_scale(d.y0 + d.y); })
+        .attr("width", this.time_scale2.rangeBand())
+        .attr("height", function(d) { return self.hour_scale(d.y0) - self.hour_scale(d.y0 + d.y); })
+        
+      .on("mouseover", function(d) {
+        d3.select(this).transition().style("opacity", "0.8");
+        self.tooltip.style("visibility", "visible");
+        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + d.key.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
+      })
+      .on("mousemove", function(d) {
+        self.tooltip.style("top", (d3.event.pageY - 10) + "px")
+          .style("left",(d3.event.pageX + 10) + "px");
+      })
+      .on("mouseout", function(d) {
+        d3.select(this).transition().style("opacity", "1");
+        self.tooltip.style("visibility", "hidden");
+        
+      })
+
+    d3.selectAll("svg.barchart .legent").remove();
+    var bar_legend = d3.select("svg.barchart").selectAll(".legend")
+        .data(this.data_by_month.data_2nd)
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+  
+    bar_legend.append("rect")
+        .attr("x", 140)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", function(d) { return self.color_scale(d.tag) } );
+  
+    bar_legend.append("text")
+        .attr("x", 130)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) { return d.tag; });
+        */
+  }
 
 }

@@ -2,4 +2,5 @@
 
 class ServiceAccount < ActiveRecord::Base
 
+	has_many :service_contents
 end
