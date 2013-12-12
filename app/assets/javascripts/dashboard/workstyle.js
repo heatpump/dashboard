@@ -366,12 +366,14 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
-    g.append("text")
-        .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return format(d.data.total / total * 100) + "%"; });
-
+    if (!this.dashboard) {
+      g.append("text")
+          .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
+          .attr("dy", ".35em")
+          .style("text-anchor", "middle")
+          .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+    }
+    
     g = d3.select("svg.piechart g").selectAll(".outer_arc")
       .data(pie(this.data_by_month.data))
       .enter().append("g")
@@ -394,11 +396,13 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
-    g.append("text")
+    if (!this.dashboard) {
+      g.append("text")
         .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+    }
 
     if (!this.dashboard) {
       d3.selectAll("svg.piechart .legent").remove();
