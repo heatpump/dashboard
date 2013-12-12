@@ -26,11 +26,11 @@
       <a class="brand" href="/dashboard/">経営くん</a>
       <div class="nav-collapse collapse">
         <ul class="nav">
-          <li class="active"><a href="./">Dashboard</a></li>
-          <li><a href="/dashboard/management">Management</a></li>
-          <li><a href="/dashboard/production">Production</a></li>
-          <li><a href="/dashboard/flagship">Flagship</a></li>
-          <li><a href="/dashboard/workstyle">Workstyle</a></li>
+          <li class="<%= request.fullpath.end_with?('/dashboard/') ? 'active' : '' %>"><a href="./">Dashboard</a></li>
+          <li class="<%= request.fullpath.include?('/management') ? 'active' : '' %>"><a href="/dashboard/management">Management</a></li>
+          <li class="<%= request.fullpath.include?('/production') ? 'active' : '' %>"><a href="/dashboard/production">Production</a></li>
+          <li class="<%= request.fullpath.include?('/flagship') ? 'active' : '' %>"><a href="/dashboard/flagship">Flagship</a></li>
+          <li class="<%= request.fullpath.include?('/workstyle') ? 'active' : '' %>"><a href="/dashboard/workstyle">Workstyle</a></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
