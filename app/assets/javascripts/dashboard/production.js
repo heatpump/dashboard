@@ -12,7 +12,7 @@
  * 
  * @constructor
  */
-function Production(graphSelector, tableSelector) {
+function Production(graphSelector, tableSelector, dashboard) {
 
   // datasource url
   this.api = "/dashboard/api/production.json";
@@ -20,10 +20,21 @@ function Production(graphSelector, tableSelector) {
   // select
   this.graph = undefined;
   this.table = undefined;
-  
+  this.dashboard = dashboard;
+
   this.margin = {top: 20, right: 320, bottom: 40, left: 100};
   this.width = 1170 - this.margin.left - this.margin.right;
   this.height = 500 - this.margin.top - this.margin.bottom;
+
+  if (this.dashboard) {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 460 - this.margin.left - this.margin.right;
+    this.height = 230 - this.margin.top - this.margin.bottom;
+  } else {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 1170 - this.margin.left - this.margin.right;
+    this.height = 500 - this.margin.top - this.margin.bottom;
+  }
   
   this.attachTo(graphSelector, tableSelector);
   this.load();

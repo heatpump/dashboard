@@ -11,7 +11,7 @@
  * 
  * @constructor
  */
-function Management(graphSelector, tableSelector) {
+function Management(graphSelector, tableSelector, dashboard) {
 
   // datasource url
   this.api = "https://docs.google.com/a/uniba.jp/spreadsheet/tq?key=0Ao5GQ0WIiwnXdG5uS0lfV0VZZWluYmJjOTQ1Y0t1NFE&gid=33";
@@ -19,10 +19,17 @@ function Management(graphSelector, tableSelector) {
   // select
   this.graph = undefined;
   this.table = undefined;
+  this.dashboard = dashboard;
   
-  this.margin = {top: 20, right: 20, bottom: 40, left: 100};
-  this.width = 1170 - this.margin.left - this.margin.right;
-  this.height = 500 - this.margin.top - this.margin.bottom;
+  if (this.dashboard) {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 460 - this.margin.left - this.margin.right;
+    this.height = 230 - this.margin.top - this.margin.bottom;
+  } else {
+    this.margin = {top: 20, right: 20, bottom: 40, left: 100};
+    this.width = 1170 - this.margin.left - this.margin.right;
+    this.height = 500 - this.margin.top - this.margin.bottom;
+  }
   
   this.x_scale = d3.time.scale()
     .domain([new Date('2013/04/01'), new Date('2014/03/01')])
@@ -55,29 +62,32 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
         .append("g")
           .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-    var saleschart = this.graph.append("div").attr("class", "tab-pane").attr("id", "saleschart").append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-          .attr("class", "saleschart")
-        .append("g")
-          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-    
-    var improvementchart = this.graph.append("div").attr("class", "tab-pane").attr("id", "improvementchart").append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-          .attr("class", "improvementchart")
-        .append("g")
-          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-    
-    var challengechart = this.graph.append("div").attr("class", "tab-pane").attr("id", "challengechart").append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-          .attr("class", "challengechart")
-        .append("g")
-          .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-    
-    var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
-    
+    if (!this.dashboard) {
+
+      var saleschart = this.graph.append("div").attr("class", "tab-pane").attr("id", "saleschart").append("svg")
+            .attr("width", this.width + this.margin.left + this.margin.right)
+            .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .attr("class", "saleschart")
+          .append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+      
+      var improvementchart = this.graph.append("div").attr("class", "tab-pane").attr("id", "improvementchart").append("svg")
+            .attr("width", this.width + this.margin.left + this.margin.right)
+            .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .attr("class", "improvementchart")
+          .append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+      
+      var challengechart = this.graph.append("div").attr("class", "tab-pane").attr("id", "challengechart").append("svg")
+            .attr("width", this.width + this.margin.left + this.margin.right)
+            .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .attr("class", "challengechart")
+          .append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+      
+      var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
+    }
+
     // initialize tooltip
     this.tooltip = this.graph
       .append("div")
@@ -231,6 +241,8 @@ Management.prototype.update = function() {
     var x_axis = d3.svg.axis()
       .scale(this.x_scale)
       .orient("bottom");
+
+    x_axis.tickFormat(function(d) { return d.substring(5)});
       
     var y_axis = d3.svg.axis()
       .scale(this.y_scale)
@@ -295,30 +307,32 @@ Management.prototype.update = function() {
         
       })
 
-    chart.selectAll(".legent").remove();
-    var bar_legend = chart.selectAll(".legend")
-        .data(this.cost_data)
-      .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
-  
-    bar_legend.append("rect")
-        .attr("x", 140)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", function(d) { return self.color_scale(d.key) } );
-  
-    bar_legend.append("text")
-        .attr("x", 130)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function(d) { return self.label_scale(d.key); });
+    if (!this.dashboard) {
 
+      chart.selectAll(".legent").remove();
+      var bar_legend = chart.selectAll(".legend")
+          .data(this.cost_data)
+        .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+    
+      bar_legend.append("rect")
+          .attr("x", 140)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d) { return self.color_scale(d.key) } );
+    
+      bar_legend.append("text")
+          .attr("x", 130)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) { return self.label_scale(d.key); });
+    }
   }
 
 
-  if(this.graph) {
+  if(this.graph && !this.dashboard) {
     /*
      * sales barchart
      */
@@ -397,9 +411,9 @@ Management.prototype.update = function() {
         
       })
 
-    chart.selectAll(".legent").remove();
+    chart.selectAll(".legend").remove();
     var bar_legend = chart.selectAll(".legend")
-        .data(this.cost_data)
+        .data(this.sales_data)
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
@@ -419,7 +433,7 @@ Management.prototype.update = function() {
 
   }
   
-  if(this.graph) {
+  if(this.graph && !this.dashboard) {
     /*
      * improvement barchart
      */
@@ -539,7 +553,7 @@ Management.prototype.update = function() {
 
   }
   
-  if(this.graph) {
+  if(this.graph && !this.dashboard) {
     /*
      * challenge barchart
      */
