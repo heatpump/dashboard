@@ -268,7 +268,7 @@ Management.prototype.update = function() {
         .attr("y", 6)
         .attr("dy", ".71em")
         .attr("text-anchor", "end")
-        .text("(円)");
+        .text("Yen");
     
     var self = this;
     chart.select("g").selectAll(".layer").remove();

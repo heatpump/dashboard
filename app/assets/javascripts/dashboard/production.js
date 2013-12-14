@@ -243,6 +243,14 @@ Production.prototype.update = function() {
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
       .call(y_axis);
 
+    barchart.select(".y.axis")
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .attr("text-anchor", "end")
+        .text("Yen");
+
 
     // barchart
     var layer = barchart.selectAll(".layer")
