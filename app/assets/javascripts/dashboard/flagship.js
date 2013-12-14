@@ -154,7 +154,7 @@ Flagship.prototype.update = function() {
     this.barWidth = this.width / this.data[0].counts.length * 0.8;
     this.time_scale
       .domain([new Date('2013/04/01'), new Date('2014/03/01')])
-      .range([this.barWidth / 2 + 20, this.width - this.barWidth / 2 - 20]);
+      .range([this.barWidth, this.width - this.barWidth]);
 
 
     if ($('#scale-checkbox').prop('checked')) {

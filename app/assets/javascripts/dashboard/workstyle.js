@@ -38,19 +38,18 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
     this.width = 460 - this.margin.left - this.margin.right;
     this.height = 230 - this.margin.top - this.margin.bottom;
+    this.barWidth = this.width / 12 * 0.8;
   } else {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
     this.width = 1170 - this.margin.left - this.margin.right;
     this.height = 500 - this.margin.top - this.margin.bottom;
+    this.barWidth = this.width / 12 * 0.8;
   }
     
   // d3 elements
   this.time_scale = d3.time.scale()
     .domain([new Date('2013/04/01'), new Date('2014/03/01')])
-    .range([0, this.width]);
-    
-  this.time_scale2 = d3.scale.ordinal()
-    .rangeRoundBands([0, this.width], .3);
+    .range([this.barWidth, this.width - this.barWidth]);
     
   this.hour_scale = d3.scale.linear()
     .domain([0, 2000])
@@ -231,11 +230,11 @@ Workstyle.prototype.update_month = function() {
     
     var layers = stack(this.data_by_month.data_2nd);
 
-    this.time_scale2.domain(['2013-04-01', '2013-05-01', '2013-06-01', '2013-07-01', '2013-08-01', '2013-09-01', '2013-10-01', '2013-11-01', '2013-12-01', '2014-01-01', '2014-02-01', '2014-03-01']);
     this.hour_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.result, function(d) { return d.y0 + d.y}) })])
 
     var time_axis = d3.svg.axis()
-      .scale(this.time_scale2)
+      .scale(this.time_scale)
+      .tickFormat(d3.time.format('%Y/%m'))
       .orient("bottom");
       
     var hour_axis = d3.svg.axis()
@@ -280,9 +279,9 @@ Workstyle.prototype.update_month = function() {
           element.rate = format(element.hour / total[element.key] * 100);
           return element; }) })
       .enter().append("rect")
-        .attr("x", function(d) { return self.time_scale2(d.key); })
+        .attr("x", function(d) { return self.time_scale(new Date(d.key)) - self.barWidth / 2; })
         .attr("y", function(d) { return self.hour_scale(d.y0 + d.y); })
-        .attr("width", this.time_scale2.rangeBand())
+        .attr("width", this.barWidth)
         .attr("height", function(d) { return self.hour_scale(d.y0) - self.hour_scale(d.y0 + d.y); })
         
       .on("mouseover", function(d) {
