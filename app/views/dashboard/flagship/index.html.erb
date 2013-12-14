@@ -4,12 +4,10 @@
 
       <form class="form-inline">
           Span: <input type="text" name="range" id="range" class="rangepicker" />&nbsp;
-
-          Count by: <select name="by" id="by"><option selected>month</option><option>day</option></select>&nbsp;
-
-          Group by: <select name="item" id="item"><option>account</option><option selected>contents</option></select>&nbsp;
-
-          <button class="btn btn-primary" id="update">Update</button>
+          Count by: <select name="split" id="split"><option selected>month</option><option>week</option><option>day</option></select>&nbsp;
+          Group by: <select name="group" id="group"><option>account</option><option selected>contents</option></select>&nbsp;
+          <button class="btn btn-primary" id="update">Update</button><br />
+          <input type="checkbox" value="on" id="scale-checkbox" name="scale-checkbox" /> zoom y-scale
       </form>
     </div>
 
@@ -36,5 +34,8 @@
   	startDate: '2013-04-01',
   	endDate: '2014-03-31',
   });
+
+  $('#scale-checkbox').change(flagship.change.bind(flagship));
+  $('button#update').on('click', function() { flagship.load(); return false; });
 
 </script>
