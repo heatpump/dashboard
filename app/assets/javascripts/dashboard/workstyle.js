@@ -270,9 +270,9 @@ Workstyle.prototype.update_month = function() {
     
     var total = {};
     this.data_by_month.total.result.forEach(function(entry) {
-      total[entry.key] = entry.hour;
+      total[entry.date] = entry.hour;
     });
-    
+
     var rect = layer.selectAll("rect")
         .data(function(d) { return d.result.map(function(element) { 
           element.tag = d.tag;
@@ -287,7 +287,8 @@ Workstyle.prototype.update_month = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + d.key.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
+        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + 
+            d.key.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
