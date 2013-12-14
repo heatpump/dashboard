@@ -43,9 +43,9 @@ td.hour, th.hour {
   color: black;
 }
 
-.inner_arc text, .outer_arc text {
+text.inner_label, text.outer_label {
   fill: white;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 thead {

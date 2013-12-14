@@ -37,5 +37,6 @@
 
   $('#scale-checkbox').change(flagship.change.bind(flagship));
   $('button#update').on('click', function() { flagship.load(); return false; });
+  $("form").on("submit", function() { return false;})
 
 </script>

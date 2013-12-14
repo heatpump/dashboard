@@ -6,7 +6,7 @@
           Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
           <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
 
-          Staff:
+          &nbsp;Staff:
           <select id="username" name="username">
           <option value="">All Staff</option>
           <option>jun@uniba.jp</option>
@@ -51,7 +51,8 @@
           </div>
           -->
 
-          <button class="btn btn-primary" id="update">Update</button>
+          &nbsp;<button class="btn btn-primary" id="update">Update</button><br />
+          <input type="checkbox" id="show-detail" name="show-detail" value="on" checked /> show detail
       </form>
 
     </div>
@@ -78,6 +79,7 @@ $(function(){
   
   $("#update").on("click", function() { workstyle.load(); return false;})
   $("form").on("submit", function() { return false;})
+  $("#show-detail").on("change", function() { workstyle.change(); return false;})
 
   $('.datepicker').datepicker({
     format: 'yyyy-mm-dd',

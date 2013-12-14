@@ -45,6 +45,7 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
     this.height = 500 - this.margin.top - this.margin.bottom;
     this.barWidth = this.width / 12 * 0.8;
   }
+  this.show_detail = $('#show-detail').prop('checked');
     
   // d3 elements
   this.time_scale = d3.time.scale()
@@ -87,7 +88,18 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
         "rgb(0,145,206)",
       "rgb(255,252,65)",
       "rgb(200,200,200)"]);
-    
+  
+  this.color_by_tag = function(tag) {
+    var groups = d3.set(['R', 'S', 'J', 'H', 'I', 'A', 'D', 'P', 'V', 'DSP']);
+    if (tag.match(/P\d{4}/)) {
+      tag = 'Pxxxx';
+    } else if (tag.match(/C\d{4}/)) {
+      tag = 'Cxxxx';
+    } else if (groups.has(tag)) {
+      tag = 'GROUP';
+    }
+    return this.color_scale(tag);
+  }  
   
   this.attachTo(graphSelector, tableSelector);
   this.load();
@@ -178,17 +190,83 @@ Workstyle.prototype.load = function() {
   d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
     self.data_by_month = response;
-    
+ 
+     // 第二階層を取得
+    var data_replace = [];
+    self.data_by_month.data.forEach(function(d) {
+      if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
+        d['children'].forEach(function(d) {
+          data_replace.push(d);
+        })
+      } else {
+        data_replace.push(d);
+      }
+    })
+    self.data_by_month.data_2nd = data_replace;
+
+    // 第３階層を取得
+    data_replace = [];
+    self.data_by_month.data.forEach(function(d) {
+      if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
+        d['children'].forEach(function(d) {
+
+          if (d['children']) {
+            d['children'].forEach(function(d) {
+              data_replace.push(d);
+            })
+          } else {
+            data_replace.push(d);
+          }
+        })
+      } else {
+        data_replace.push(d);
+      }
+    })
+    self.data_by_month.data_3rd = data_replace;
+   
     self.update_month();
   });
 
   d3.json(this.api_by_person + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
 
     self.data_by_person = response;
+
+    // 第二階層を取得
+    var data_replace = [];
     
+    self.data_by_person.data.forEach(function(d) {
+      if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
+        d['children'].forEach(function(d) {
+          data_replace.push(d);
+        })
+      } else {
+        data_replace.push(d);
+      }
+    })
+    self.data_by_person.data_2nd = data_replace;
+
+    // 第３階層を取得
+    data_replace = [];
+    self.data_by_person.data.forEach(function(d) {
+      if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
+        d['children'].forEach(function(d) {
+
+          if (d['children']) {
+            d['children'].forEach(function(d) {
+              data_replace.push(d);
+            })
+          } else {
+            data_replace.push(d);
+          }
+        })
+      } else {
+        data_replace.push(d);
+      }
+    })
+    self.data_by_person.data_3rd = data_replace;
+
     self.update_person();
   });
-
 }
 
 /**
@@ -200,23 +278,7 @@ Workstyle.prototype.load = function() {
 Workstyle.prototype.update_month = function() {
 
   var format = d3.format(".2f");
-    var self = this;
-
-  // 第二階層を取得
-  
-  var data_replace = [];
-  
-  this.data_by_month.data.forEach(function(d) {
-    if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
-      d['children'].forEach(function(d) {
-        data_replace.push(d);
-      })
-    } else {
-      data_replace.push(d);
-    }
-  })
-  
-  this.data_by_month.data_2nd = data_replace;
+  var self = this;
 
   if(this.graph && !this.dashboard) {
     /*
@@ -228,7 +290,11 @@ Workstyle.prototype.update_month = function() {
       .x(function(d) {return d.key})
       .y(function(d) {return d.hour});
     
-    var layers = stack(this.data_by_month.data_2nd);
+    if (this.show_detail) {
+      var layers = stack(this.data_by_month.data_3rd);
+    } else {
+      var layers = stack(this.data_by_month.data_2nd);
+    }
 
     this.hour_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.result, function(d) { return d.y0 + d.y}) })])
 
@@ -241,32 +307,30 @@ Workstyle.prototype.update_month = function() {
       .scale(this.hour_scale)
       .orient("left");
     
-    this.graph.select("svg.barchart").selectAll("g.axis").remove();
-    
-    this.graph.select("svg.barchart").append("g")
+    this.graph.select("svg.barchart").selectAll("g.x.axis").data(['']).enter().append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")")
+      .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")");
+    this.graph.select("svg.barchart g.x.axis")
       .call(time_axis);
 
-    this.graph.select("svg.barchart").append("g")
+    this.graph.select("svg.barchart").selectAll("g.y.axis").data(['']).enter().append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-      .call(hour_axis);
-      
-    d3.select(".y.axis")
       .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
         .attr("text-anchor", "end")
         .text("Hours");
-    
+    this.graph.select("svg.barchart g.y.axis")
+      .call(hour_axis);
+      
     this.graph.select("svg.barchart g").selectAll(".layer").remove();
     var layer = this.graph.select("svg.barchart g").selectAll(".layer")
         .data(layers)
       .enter().append("g")
         .attr("class", "layer")
-        .style("fill", function(d) { return self.color_scale(d.tag); });
+        .style("fill", function(d) { return self.color_by_tag(d.tag); });
     
     var total = {};
     this.data_by_month.total.result.forEach(function(entry) {
@@ -300,7 +364,7 @@ Workstyle.prototype.update_month = function() {
         
       })
 
-    d3.selectAll("svg.barchart .legent").remove();
+    d3.selectAll("svg.barchart .legend").remove();
     var bar_legend = d3.select("svg.barchart").selectAll(".legend")
         .data(this.data_by_month.data_2nd)
       .enter().append("g")
@@ -311,7 +375,7 @@ Workstyle.prototype.update_month = function() {
         .attr("x", 140)
         .attr("width", 18)
         .attr("height", 18)
-        .style("fill", function(d) { return self.color_scale(d.tag) } );
+        .style("fill", function(d) { return self.color_by_tag(d.tag) } );
   
     bar_legend.append("text")
         .attr("x", 130)
@@ -343,14 +407,20 @@ Workstyle.prototype.update_month = function() {
     
     this.graph.selectAll("svg.piechart g g").remove();
     
+    if (this.show_detail) {
+      var data = pie(this.data_by_month.data_3rd);
+    } else {
+      var data = pie(this.data_by_month.data_2nd);
+    }
+
     var g = this.graph.select("svg.piechart g").selectAll(".inner_arc")
-      .data(pie(this.data_by_month.data_2nd))
+      .data(data)
       .enter().append("g")
         .attr("class", "inner_arc");
         
     g.append("path")
       .attr("d", inner_arc)
-      .style("fill", function(d) { return self.color_scale(d.data.tag) })
+      .style("fill", function(d) { return self.color_by_tag(d.data.tag) })
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
@@ -367,11 +437,15 @@ Workstyle.prototype.update_month = function() {
       });
 
     if (!this.dashboard) {
-      g.append("text")
+      this.graph.selectAll("svg.piechart g text.inner_label").remove();
+      this.graph.select("svg.piechart g").selectAll("text.inner_label")
+        .data(data)
+        .enter().append("text")
+          .attr("class", "inner_label")
           .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
           .attr("dy", ".35em")
           .style("text-anchor", "middle")
-          .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+          .text(function(d) { return d.data.total / total > 0.03 ? format(d.data.total / total * 100) + "%" : ''; });
     }
 
     g = d3.select("svg.piechart g").selectAll(".outer_arc")
@@ -381,7 +455,7 @@ Workstyle.prototype.update_month = function() {
         
     g.append("path")
       .attr("d", outer_arc)
-      .style("fill", function(d) { return self.color_scale(d.data.tag) })
+      .style("fill", function(d) { return self.color_by_tag(d.data.tag) })
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
@@ -397,11 +471,15 @@ Workstyle.prototype.update_month = function() {
         
       });
 
-      g.append("text")
-        .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return format(d.data.total / total * 100) + "%"; });
+      this.graph.selectAll("svg.piechart g text.outer_label").remove();
+      this.graph.select("svg.piechart g").selectAll("text.outer_label")
+        .data(pie(this.data_by_month.data))
+        .enter().append("text")
+          .attr("class", "outer_label")
+          .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
+          .attr("dy", ".35em")
+          .style("text-anchor", "middle")
+          .text(function(d) { return d.data.total / total > 0.03 ? format(d.data.total / total * 100) + "%" : ''; });
 
     if (!this.dashboard) {
       d3.selectAll("svg.piechart .legent").remove();
@@ -415,7 +493,7 @@ Workstyle.prototype.update_month = function() {
           .attr("x", 140)
           .attr("width", 18)
           .attr("height", 18)
-          .style("fill", function(d) { return self.color_scale(d.tag) } );
+          .style("fill", function(d) { return self.color_by_tag(d.tag) } );
     
       pie_legend.append("text")
           .attr("x", 130)
@@ -450,7 +528,7 @@ Workstyle.prototype.update_month = function() {
 
     tr.append("th")
       .text(function(d) { return d.tag; })
-      .style("background-color", function(d) { return self.color_scale(d.tag)});
+      .style("background-color", function(d) { return self.color_by_tag(d.tag)});
     tr.selectAll("td").data(function(d) {return d.result; })
       .enter()
       .append("td")
@@ -479,21 +557,6 @@ Workstyle.prototype.update_person = function() {
 
   var self = this;
   var format = d3.format(".2f");
-  // 第二階層を取得
-  
-  var data_replace = [];
-  
-  this.data_by_person.data.forEach(function(d) {
-    if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
-      d['children'].forEach(function(d) {
-        data_replace.push(d);
-      })
-    } else {
-      data_replace.push(d);
-    }
-  })
-  
-  this.data_by_person.data_2nd = data_replace;
 
   if(this.table) {
   
@@ -544,7 +607,7 @@ Workstyle.prototype.update_person = function() {
 
     tr.append("th")
       .text(function(d) { return d.tag; })
-      .style("background-color", function(d) { return self.color_scale(d.tag)});
+      .style("background-color", function(d) { return self.color_by_tag(d.tag)});
     tr.selectAll("td").data(function(d) {return d.result; })
       .enter()
       .append("td")
@@ -563,4 +626,9 @@ Workstyle.prototype.update_person = function() {
   }
 }
 
+Workstyle.prototype.change = function() {
+  this.show_detail = $('#show-detail').prop('checked');
+  this.update_month();
+  this.update_person();
+}
 
