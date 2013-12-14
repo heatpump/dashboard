@@ -286,7 +286,7 @@ Management.prototype.update = function() {
     */
 
     var rect = layer.selectAll("rect")
-        .data(function(d) { console.log(d); return d.value })
+        .data(function(d) { return d.value })
       .enter().append("rect")
         .attr("x", function(d) { return self.x_scale(d.key); })
         .attr("y", function(d) { return self.y_scale(d.y0 + d.y); })

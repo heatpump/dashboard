@@ -208,7 +208,6 @@ Workstyle.prototype.update_month = function() {
   var data_replace = [];
   
   this.data_by_month.data.forEach(function(d) {
-    console.log(d);
     if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
       d['children'].forEach(function(d) {
         data_replace.push(d);
@@ -326,7 +325,7 @@ Workstyle.prototype.update_month = function() {
     /*
      * piechart (累計割合)
      */
-    var radius = this.height / 2.5;
+    var radius = ( this.height + this.margin.top + this.margin.bottom ) / 3;
     
     var inner_arc = d3.svg.arc()
       .outerRadius(radius)
@@ -366,6 +365,7 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
+
     if (!this.dashboard) {
       g.append("text")
           .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
@@ -373,7 +373,7 @@ Workstyle.prototype.update_month = function() {
           .style("text-anchor", "middle")
           .text(function(d) { return format(d.data.total / total * 100) + "%"; });
     }
-    
+
     g = d3.select("svg.piechart g").selectAll(".outer_arc")
       .data(pie(this.data_by_month.data))
       .enter().append("g")
@@ -396,13 +396,12 @@ Workstyle.prototype.update_month = function() {
         self.tooltip.style("visibility", "hidden");
         
       });
-    if (!this.dashboard) {
+
       g.append("text")
         .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .text(function(d) { return format(d.data.total / total * 100) + "%"; });
-    }
 
     if (!this.dashboard) {
       d3.selectAll("svg.piechart .legent").remove();
