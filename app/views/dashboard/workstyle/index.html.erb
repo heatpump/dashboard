@@ -2,60 +2,56 @@
     <h2>Workstyle Report</h2>
     <div class="well">
 
-      <form class="form-inline">
-          Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
-          <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
-
-          &nbsp;Staff:
-          <select id="username" name="username">
-          <option value="">All Staff</option>
-          <option>jun@uniba.jp</option>
-          <option>haruma@uniba.jp</option>
-          <option>rei@uniba.jp</option>
-          <option>yui@uniba.jp</option>
-          <option>seiya@uniba.jp</option>
-          <option>noriyuki@uniba.jp</option>
-          <option>ryo@uniba.jp</option>
-          <option>tetsuro@uniba.jp</option>
-          <option>keiichi@uniba.jp</option>
-          <option>andre@uniba.jp</option>
-          <option>hideyuki@uniba.jp</option>
-          <option>daichi@uniba.jp</option>
-          <option>sei@uniba.jp</option>
-          <option>mori@uniba.jp</option>
-          <option>saki@uniba.jp</option>
-          <option>ogawa@uniba.jp</option>
-          <option>takumi@uniba.jp</option>
-          <option>mizutani@uniba.jp</option>
-          <option>fukuma@uniba.jp</option>
-          </select>
-          <!--
-          <div class="btn-group">
-            <button class="btn">All User</button>
-            <button class="btn dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-              <li><a tabindex="-1" href="#">all user</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">haruma@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-              <li><a tabindex="-1" href="#">jun@uniba.jp</a></li>
-            </ul>
+      <form class="form-inline clearfix">
+        <div class="pull-left">
+          <div class="form-group" style="width: 190px">
+            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" />
+            <input type="hidden" name="since" id="since" />
+            <input type="hidden" name="until" id="until" />
           </div>
-          -->
-
-          &nbsp;<button class="btn btn-primary" id="update">Update</button><br />
-          <input type="checkbox" id="show-detail" name="show-detail" value="on" checked /> show detail
+          <div class="form-group">
+            <select name="split" id="split" class="form-control" disabled>
+              <option value="year">by year</option>
+              <option value="quarter">by quarter</option>
+              <option value="month" selected>by month</option>
+              <option value="week">by week</option>
+              <option value="day">by day</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <select name="username" id="username" class="form-control">
+              <option value="">All Staff</option>
+              <option>jun@uniba.jp</option>
+              <option>haruma@uniba.jp</option>
+              <option>rei@uniba.jp</option>
+              <option>yui@uniba.jp</option>
+              <option>seiya@uniba.jp</option>
+              <option>noriyuki@uniba.jp</option>
+              <option>ryo@uniba.jp</option>
+              <option>tetsuro@uniba.jp</option>
+              <option>keiichi@uniba.jp</option>
+              <option>andre@uniba.jp</option>
+              <option>hideyuki@uniba.jp</option>
+              <option>daichi@uniba.jp</option>
+              <option>sei@uniba.jp</option>
+              <option>mori@uniba.jp</option>
+              <option>saki@uniba.jp</option>
+              <option>ogawa@uniba.jp</option>
+              <option>takumi@uniba.jp</option>
+              <option>mizutani@uniba.jp</option>
+              <option>fukuma@uniba.jp</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="update">Update</button>
+        </div>
+        <div class="pull-right">
+          <div class="checkbox">
+            <label><input type="checkbox" id="show-detail" name="show-detail" value="on" checked /> show detail</label>
+          </div>
+        </div>
       </form>
-
     </div>
+
     <ul class="nav nav-tabs">
       <li class="active"><a href="#barchart" data-toggle="tab">Trends</a></li>
       <li><a href="#piechart" data-toggle="tab">Piechart</a></li>
@@ -80,10 +76,27 @@ $(function(){
   $("form").on("submit", function() { return false;})
   $("#show-detail").on("change", function() { workstyle.change(); return false;})
 
-  $('.datepicker').datepicker({
-    format: 'yyyy-mm-dd',
-    weekStart: 1
-  })
+  $('.rangepicker').daterangepicker({
+    format: 'YYYY-MM-DD',
+    startDate: '2013-04-01',
+    endDate: '2014-03-31',
+    minDate: '2013-04-01',
+    maxDate: '2014-03-31',
+    ranges: {
+      'This Week': [moment().subtract('days', 6), new Date()],
+      'Last Week': [moment().subtract('days', 6 - 7), new Date()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().startOf('month'), moment().endOf('month')],
+      'This Quarter': ['2013-10-01', '2013-12-31'],
+      'This Year': ['2013-04-01', '2014-03-31'],
+    },
+  }, function(start, end) {
+    $('#since').val(moment(start).format('YYYY-MM-DD'));
+    $('#until').val(moment(end).format('YYYY-MM-DD'));
+  });
+  $('#span').val('2013-04-01 - 2014-03-31');
+  $('#since').val('2013-04-01');
+  $('#until').val('2014-03-31');
 
 });
 </script>

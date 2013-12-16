@@ -2,17 +2,40 @@
   <h2>Flagship Report</h2>
     <div class="well">
 
-      <form class="form-inline">
-          Span: <input type="text" name="range" id="range" class="rangepicker" />&nbsp;
-          Count by: <select name="split" id="split"><option selected>month</option><option>week</option><option>day</option></select>&nbsp;
-          Group by: <select name="group" id="group"><option>account</option><option selected>contents</option></select>&nbsp;
-          <button class="btn btn-primary" id="update">Update</button><br />
-          <input type="checkbox" value="on" id="scale-checkbox" name="scale-checkbox" /> zoom y-scale
+      <form class="form-inline clearfix">
+        <div class="pull-left">
+          <div class="form-group" style="width: 190px">
+            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            <input type="hidden" name="span_start" id="span_start" />
+            <input type="hidden" name="span_end" id="span_end" />
+          </div>
+          <div class="form-group">
+            <select name="split" id="split" class="form-control">
+              <option value="year">by year</option>
+              <option value="quarter">by quarter</option>
+              <option value="month" selected>by month</option>
+              <option value="week">by week</option>
+              <option value="day">by day</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <select name="group" id="group" class="form-control">
+              <option value="account">by account</option>
+              <option value="contents" selected>by contents</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="update">Update</button>
+        </div>
+        <div class="pull-right">
+          <div class="checkbox">
+            <label><input type="checkbox" value="on" id="scale-checkbox" name="scale-checkbox" /> zoom y-scale</label>
+          </div>
+        </div>
       </form>
     </div>
 
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#barchart" data-toggle="tab">動画視聴数</a></li>
+      <li class="active"><a href="#barchart" data-toggle="tab">Views</a></li>
     </ul>
 
     <div id="graph" class="tab-content">
@@ -31,9 +54,23 @@
 
   $('.rangepicker').daterangepicker({
   	format: 'YYYY-MM-DD',
-  	startDate: '2013-04-01',
-  	endDate: '2014-03-31',
+    startDate: '2013-04-01',
+    endDate: '2014-03-31',
+    minDate: '2013-04-01',
+    maxDate: '2014-03-31',
+    ranges: {
+      'This Week': [moment().subtract('days', 6), new Date()],
+      'Last Week': [moment().subtract('days', 6 - 7), new Date()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().startOf('month'), moment().endOf('month')],
+      'This Quarter': ['2013-10-01', '2013-12-31'],
+      'This Year': ['2013-04-01', '2014-03-31'],
+    },
+  }, function(start, end) {
+    $('#span_start').val(moment(start).format('YYYY-MM-DD'));
+    $('#span_end').val(moment(end).format('YYYY-MM-DD'));
   });
+  $('#span').val('2013-04-01 - 2014-03-31');
 
   $('#scale-checkbox').change(flagship.change.bind(flagship));
   $('button#update').on('click', function() { flagship.load(); return false; });

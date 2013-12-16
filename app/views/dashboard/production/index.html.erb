@@ -3,25 +3,26 @@
 
     <div class="well">
 
-      <form class="form-inline">
-          Date: <input type="text" name="since" id="since" value="2013-04-01" class="datepicker span2" /> ~
-          <input type="text" name="until" id="until" value="<%= Date.today %>" class="datepicker span2" />
-
-          <button class="btn btn-primary" id="update">Update</button>
+      <form class="form-inline clearfix">
+        <div class="pull-left">
+          <div class="form-group" style="width: 190px">
+            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            <input type="hidden" name="since" id="since" />
+            <input type="hidden" name="until" id="until" />
+          </div>
+          <button class="btn btn-primary" id="update" disabled>Update</button>
+        </div>
       </form>
-
     </div>
 
-    <!--
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#chart" data-toggle="tab">Graph</a></li>
-      <li><a href="#table" data-toggle="tab">Table</a></li>
+      <li class="active"><a href="#graph" data-toggle="tab">Sales and Costs</a></li>
     </ul>
-    -->
+
     <div id="graph" class="tab-content">
     </div>
     <hr />
-    <div id="table" class="tab-content">
+    <div id="table">
     </div>
   </div>
 
@@ -32,15 +33,31 @@
  */
 $(function(){
   var production = new Production("#graph", "#table");
-  
-  /*
-  $("#update").on("click", function() { production.load(); return false;})
+
+  $('.rangepicker').daterangepicker({
+    format: 'YYYY-MM-DD',
+    startDate: '2013-04-01',
+    endDate: '2014-03-31',
+    minDate: '2013-04-01',
+    maxDate: '2014-03-31',
+    ranges: {
+      'This Week': [moment().subtract('days', 6), new Date()],
+      'Last Week': [moment().subtract('days', 6 - 7), new Date()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().startOf('month'), moment().endOf('month')],
+      'This Quarter': ['2013-10-01', '2013-12-31'],
+      'This Year': ['2013-04-01', '2014-03-31'],
+    },
+  }, function(start, end) {
+    $('#since').val(moment(start).format('YYYY-MM-DD'));
+    $('#until').val(moment(end).format('YYYY-MM-DD'));
+  });
+  $('#span').val('2013-04-01 - 2014-03-31');
+  $('#since').val('2013-04-01');
+  $('#until').val('2014-03-31');
+
+  $('button#update').on('click', function() { management.load(); return false; });
   $("form").on("submit", function() { return false;})
 
-  $('.datepicker').datepicker({
-    format: 'yyyy-mm-dd',
-    weekStart: 1
-  })
-  */
 });
 </script>

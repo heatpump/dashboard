@@ -87,29 +87,41 @@ module Dashboard
           if range_end < cur_end
             cur_end = range_end
           end
-
           ranges.push(current .. cur_end)
-
           current = current.tomorrow.beginning_of_day
+
         elsif split == 'week'
           cur_end = current.end_of_week
           if range_end < cur_end
             cur_end = range_end
           end
-
           ranges.push(current .. cur_end)
-
           current = current.next_week.beginning_of_week
 
-        else
+        elsif split == 'month'
           cur_end = current.end_of_month
           if range_end < cur_end
             cur_end = range_end
           end
-
           ranges.push(current .. cur_end)
-
           current = current.next_month.beginning_of_month
+
+        elsif split == 'quarter'
+          cur_end = current.end_of_quarter
+          if range_end < cur_end
+            cur_end = range_end
+          end
+          ranges.push(current .. cur_end)
+          current = current.next_month.next_month.next_month.beginning_of_quarter
+
+        elsif split == 'year'
+          cur_end = current.end_of_year
+          if range_end < cur_end
+            cur_end = range_end
+          end
+          ranges.push(current .. cur_end)
+          current = current.next_year.beginning_of_year
+
         end
 
       end

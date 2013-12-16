@@ -2,12 +2,28 @@
   <h2>Management Report</h2>
     <div class="well">
 
-      <form class="form-inline">
-        <!--
-          Date: <input type="text" name="range" id="range" class="rangepicker span2" />
-          <button class="btn btn-primary" id="update">Update</button>
-        -->
+      <form class="form-inline clearfix">
+        <div class="pull-left">
+          <div class="form-group" style="width: 190px">
+            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            <input type="hidden" name="span_start" id="span_start" />
+            <input type="hidden" name="span_end" id="span_end" />
+          </div>
+          <div class="form-group">
+            <select name="split" id="split" class="form-control" disabled>
+              <option value="year">by year</option>
+              <option value="quarter">by quarter</option>
+              <option value="month" selected>by month</option>
+              <option value="week">by week</option>
+              <option value="day">by day</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="update" disabled>Update</button>
+        </div>
+        <div class="pull-right">
+        </div>
       </form>
+    </div>
 
     </div>
 
@@ -41,6 +57,27 @@
   }
   google.setOnLoadCallback(onLoadVisualizationApi); 
 
-  $('.rangepicker').daterangepicker();
+  $('.rangepicker').daterangepicker({
+    format: 'YYYY-MM-DD',
+    startDate: '2013-04-01',
+    endDate: '2014-03-31',
+    minDate: '2013-04-01',
+    maxDate: '2014-03-31',
+    ranges: {
+      'This Week': [moment().subtract('days', 6), new Date()],
+      'Last Week': [moment().subtract('days', 6 - 7), new Date()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().startOf('month'), moment().endOf('month')],
+      'This Quarter': ['2013-10-01', '2013-12-31'],
+      'This Year': ['2013-04-01', '2014-03-31'],
+    },
+  }, function(start, end) {
+    $('#span_start').val(moment(start).format('YYYY-MM-DD'));
+    $('#span_end').val(moment(end).format('YYYY-MM-DD'));
+  });
+  $('#span').val('2013-04-01 - 2014-03-31');
+
+  $('button#update').on('click', function() { management.load(); return false; });
+  $("form").on("submit", function() { return false;})
 
 </script>
