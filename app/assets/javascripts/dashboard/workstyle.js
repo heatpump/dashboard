@@ -369,7 +369,7 @@ Workstyle.prototype.update_month = function() {
         .data(this.data_by_month.data_2nd)
       .enter().append("g")
         .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
   
     bar_legend.append("rect")
         .attr("x", 140)
@@ -487,7 +487,7 @@ Workstyle.prototype.update_month = function() {
           .data(this.data_by_month.data_2nd)
         .enter().append("g")
           .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
     
       pie_legend.append("rect")
           .attr("x", 140)

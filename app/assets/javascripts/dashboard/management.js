@@ -23,7 +23,7 @@ function Management(graphSelector, tableSelector, dashboard) {
   
   if (this.dashboard) {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
-    this.width = 460 - this.margin.left - this.margin.right;
+    this.width = 540 - this.margin.left - this.margin.right;
     this.height = 230 - this.margin.top - this.margin.bottom;
   } else {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
@@ -314,7 +314,7 @@ Management.prototype.update = function() {
           .data(this.cost_data)
         .enter().append("g")
           .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
     
       bar_legend.append("rect")
           .attr("x", 140)
@@ -416,7 +416,7 @@ Management.prototype.update = function() {
         .data(this.sales_data)
       .enter().append("g")
         .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
   
     bar_legend.append("rect")
         .attr("x", 140)
@@ -536,7 +536,7 @@ Management.prototype.update = function() {
         .data(this.improvement_data)
       .enter().append("g")
         .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
   
     bar_legend.append("rect")
         .attr("x", 140)
@@ -654,7 +654,7 @@ Management.prototype.update = function() {
         .data(this.challenge_data)
       .enter().append("g")
         .attr("class", "legend")
-        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + (i * 20) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
   
     bar_legend.append("rect")
         .attr("x", 140)
