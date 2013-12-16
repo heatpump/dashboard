@@ -18,6 +18,7 @@ gem 'rails', '3.2.13'
 # gem 'debugger'
 
 gem 'bootstrap-rails-engine'
+gem 'momentjs-rails'
 gem 'bootstrap-daterangepicker-rails'
 #gem 'heatpump-core', :path => 'lib/heatpump-core'
 gem 'mysql2'
