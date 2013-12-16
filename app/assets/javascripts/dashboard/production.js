@@ -22,13 +22,9 @@ function Production(graphSelector, tableSelector, dashboard) {
   this.table = undefined;
   this.dashboard = dashboard;
 
-  this.margin = {top: 20, right: 320, bottom: 40, left: 100};
-  this.width = 1170 - this.margin.left - this.margin.right;
-  this.height = 500 - this.margin.top - this.margin.bottom;
-
   if (this.dashboard) {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
-    this.width = 460 - this.margin.left - this.margin.right;
+    this.width = 540 - this.margin.left - this.margin.right;
     this.height = 230 - this.margin.top - this.margin.bottom;
   } else {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};

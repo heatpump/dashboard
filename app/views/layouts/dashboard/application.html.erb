@@ -15,24 +15,25 @@
 </head>
 <body>
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="brand" href="/dashboard/">経営くん</a>
-      <div class="nav-collapse collapse">
-        <ul class="nav">
+
+      <a class="navbar-brand" href="/dashboard/">経営くん</a>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
           <li class="<%= request.fullpath.end_with?('/dashboard/') ? 'active' : '' %>"><a href="./">Dashboard</a></li>
           <li class="<%= request.fullpath.include?('/management') ? 'active' : '' %>"><a href="/dashboard/management">Management</a></li>
           <li class="<%= request.fullpath.include?('/production') ? 'active' : '' %>"><a href="/dashboard/production">Production</a></li>
           <li class="<%= request.fullpath.include?('/flagship') ? 'active' : '' %>"><a href="/dashboard/flagship">Flagship</a></li>
           <li class="<%= request.fullpath.include?('/workstyle') ? 'active' : '' %>"><a href="/dashboard/workstyle">Workstyle</a></li>
         </ul>
-      </div><!--/.nav-collapse -->
+      </div>
     </div>
   </div>
 </div>

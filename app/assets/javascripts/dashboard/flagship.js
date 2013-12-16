@@ -32,7 +32,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
 
   if (this.dashboard) {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
-    this.width = 460 - this.margin.left - this.margin.right;
+    this.width = 540 - this.margin.left - this.margin.right;
     this.height = 230 - this.margin.top - this.margin.bottom;
   } else {
     this.margin = {top: 20, right: 20, bottom: 40, left: 100};
