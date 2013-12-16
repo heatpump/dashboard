@@ -4,8 +4,12 @@ This project rocks and uses MIT-LICENSE.
 
 deployment (on radiografija2)
 
-$ bundle update dashboard
+$ bundle update --source dashboard
+
 $ git commit Gemfile.lock
+
 $ git push
+
 $ cap staging deploy
+
 $ cap production deploy
