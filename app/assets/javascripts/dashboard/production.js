@@ -302,14 +302,10 @@ Production.prototype.update = function() {
         .data(function(d) { return d.values })
       .enter().append("rect")
         .attr("x", function(d, i) { return self.x(d.x == 'sales' ? 'sales' : 'cost'); })
-        .attr("y", function(d) { return self.y(d.y0) -  (self.y(0) - self.y(y_shift[d.x])); })
-        .attr("width", this.x.rangeBand())
-        .style("fill", function(d,i) { return self.base_color(i); })
-        .attr("height", 0)
-        .transition()
-        .duration(500)
         .attr("y", function(d) { return self.y(d.y0) - (self.y(0) - self.y(d.y)) - (self.y(0) - self.y(y_shift[d.x])); })
+        .attr("width", this.x.rangeBand())
         .attr("height", function(d) { return Math.max(self.y(0) - self.y(d.y), 0); })
+        .style("fill", function(d,i) { return self.base_color(i); })
 
   }
   
