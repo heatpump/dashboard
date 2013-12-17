@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     dashboard (0.2.0)
+      bootstrap-daterangepicker-rails
       bootstrap-rails-engine
       rails (~> 3.2.13)
 
@@ -38,7 +39,7 @@ GEM
     arel (3.0.3)
     bootstrap-daterangepicker-rails (0.0.8)
       railties (>= 3.1)
-    bootstrap-rails-engine (3.0.3.0)
+    bootstrap-rails-engine (2.3.2.0)
       railties (>= 3.0)
     builder (3.0.4)
     erubis (2.7.0)
@@ -101,7 +102,7 @@ PLATFORMS
 
 DEPENDENCIES
   bootstrap-daterangepicker-rails
-  bootstrap-rails-engine
+  bootstrap-rails-engine (= 2.3.2.0)
   dashboard!
   jquery-rails
   momentjs-rails

@@ -1,15 +1,14 @@
   <div>
-  <h2>Management Report</h2>
-    <div class="well">
+    <h2>Management Report</h2>
+    <div class="well clearfix">
 
-      <form class="form-inline clearfix">
+      <form class="form-inline">
         <div class="pull-left">
-          <div class="form-group" style="width: 190px">
+
             <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
             <input type="hidden" name="span_start" id="span_start" />
             <input type="hidden" name="span_end" id="span_end" />
-          </div>
-          <div class="form-group">
+
             <select name="split" id="split" class="form-control" disabled>
               <option value="year">by year</option>
               <option value="quarter">by quarter</option>
@@ -17,14 +16,12 @@
               <option value="week">by week</option>
               <option value="day">by day</option>
             </select>
-          </div>
+
           <button class="btn btn-primary" id="update" disabled>Update</button>
         </div>
         <div class="pull-right">
         </div>
       </form>
-    </div>
-
     </div>
 
     <ul class="nav nav-tabs">

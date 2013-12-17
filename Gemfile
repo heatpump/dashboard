@@ -17,7 +17,7 @@ gem 'rails', '3.2.13'
 # To use debugger
 # gem 'debugger'
 
-gem 'bootstrap-rails-engine'
+gem 'bootstrap-rails-engine', '2.3.2.0'
 gem 'momentjs-rails'
 gem 'bootstrap-daterangepicker-rails'
 #gem 'heatpump-core', :path => 'lib/heatpump-core'

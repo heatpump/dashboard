@@ -1,15 +1,14 @@
   <div>
     <h2>Workstyle Report</h2>
-    <div class="well">
+    <div class="well clearfix">
 
-      <form class="form-inline clearfix">
+      <form class="form-inline">
         <div class="pull-left">
-          <div class="form-group" style="width: 190px">
+
             <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" />
             <input type="hidden" name="since" id="since" />
             <input type="hidden" name="until" id="until" />
-          </div>
-          <div class="form-group">
+
             <select name="split" id="split" class="form-control" disabled>
               <option value="year">by year</option>
               <option value="quarter">by quarter</option>
@@ -17,8 +16,7 @@
               <option value="week">by week</option>
               <option value="day">by day</option>
             </select>
-          </div>
-          <div class="form-group">
+
             <select name="username" id="username" class="form-control">
               <option value="">All Staff</option>
               <option>jun@uniba.jp</option>
@@ -41,7 +39,7 @@
               <option>mizutani@uniba.jp</option>
               <option>fukuma@uniba.jp</option>
             </select>
-          </div>
+
           <button class="btn btn-primary" id="update">Update</button>
         </div>
         <div class="pull-right">
