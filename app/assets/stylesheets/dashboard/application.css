@@ -42,8 +42,12 @@ td.hour, th.hour {
 }
 
 text.inner_label, text.outer_label {
-  fill: white;
-  font-size: 10px;
+  fill: #333;
+  font-size: 12px;
+}
+text.outer_label {
+  fill: #333;
+  font-size: 20px;
 }
 
 thead {

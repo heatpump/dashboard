@@ -395,9 +395,17 @@ Workstyle.prototype.update_month = function() {
       .outerRadius(radius)
       .innerRadius(0);
 
+    var inner_arc_label = d3.svg.arc()
+      .outerRadius(radius)
+      .innerRadius(radius * 0.6);
+
     var outer_arc = d3.svg.arc()
       .outerRadius(radius * 1.25)
       .innerRadius(radius * 1.05);
+
+    var outer_arc_label = d3.svg.arc()
+      .outerRadius(radius * 1.35)
+      .innerRadius(radius * 1.25);
 
     var pie = d3.layout.pie()
       .sort(null)
@@ -442,7 +450,7 @@ Workstyle.prototype.update_month = function() {
         .data(data)
         .enter().append("text")
           .attr("class", "inner_label")
-          .attr("transform", function(d) { return "translate(" + inner_arc.centroid(d) + ")"; })
+          .attr("transform", function(d) { return "translate(" + inner_arc_label.centroid(d) + ")"; })
           .attr("dy", ".35em")
           .style("text-anchor", "middle")
           .text(function(d) { return d.data.total / total > 0.03 ? format(d.data.total / total * 100) + "%" : ''; });
@@ -476,7 +484,7 @@ Workstyle.prototype.update_month = function() {
         .data(pie(this.data_by_month.data))
         .enter().append("text")
           .attr("class", "outer_label")
-          .attr("transform", function(d) { return "translate(" + outer_arc.centroid(d) + ")"; })
+          .attr("transform", function(d) { return "translate(" + outer_arc_label.centroid(d) + ")"; })
           .attr("dy", ".35em")
           .style("text-anchor", "middle")
           .text(function(d) { return d.data.total / total > 0.03 ? format(d.data.total / total * 100) + "%" : ''; });
