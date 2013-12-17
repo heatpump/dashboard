@@ -5,9 +5,9 @@
       <form class="form-inline">
         <div class="pull-left">
 
-            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
-            <input type="hidden" name="span_start" id="span_start" />
-            <input type="hidden" name="span_end" id="span_end" />
+            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" />
+            <input type="hidden" name="since" id="since" />
+            <input type="hidden" name="until" id="until" />
 
             <select name="split" id="split" class="form-control">
               <option value="year">by year</option>
@@ -65,10 +65,12 @@
       'This Year': ['2013-04-01', '2014-03-31'],
     },
   }, function(start, end) {
-    $('#span_start').val(moment(start).format('YYYY-MM-DD'));
-    $('#span_end').val(moment(end).format('YYYY-MM-DD'));
+    $('#since').val(moment(start).format('YYYY-MM-DD'));
+    $('#until').val(moment(end).format('YYYY-MM-DD'));
   });
   $('#span').val('2013-04-01 - 2014-03-31');
+  $('#since').val('2013-04-01');
+  $('#until').val('2014-03-31');
 
   $('#scale-checkbox').change(flagship.change.bind(flagship));
   $('button#update').on('click', function() { flagship.load(); return false; });

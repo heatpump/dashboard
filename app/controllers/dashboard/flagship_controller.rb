@@ -8,8 +8,10 @@ module Dashboard
     def data
       group = params[:group] # member, account, content
       split = params[:split] # year, month, day
-      date_since = Time.parse('2013-04-01')
-      date_until = Time.parse('2014-03-31 23:59:59')
+      date_since = params[:since] || '2013-04-01';
+      date_until = params[:until] || '2014-03-31';
+      date_since = Time.parse(date_since)
+      date_until = Time.parse(date_until + ' 23:59:59')
       
       #
       # [

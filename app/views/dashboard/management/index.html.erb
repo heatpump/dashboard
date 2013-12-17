@@ -73,6 +73,8 @@
     $('#span_end').val(moment(end).format('YYYY-MM-DD'));
   });
   $('#span').val('2013-04-01 - 2014-03-31');
+  $('#since').val('2013-04-01');
+  $('#until').val('2014-03-31');
 
   $('button#update').on('click', function() { management.load(); return false; });
   $("form").on("submit", function() { return false;})

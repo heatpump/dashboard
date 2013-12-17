@@ -41,8 +41,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
   }
     
   // d3 elements
-  this.time_scale = d3.time.scale()
-    .domain([new Date('2013/04/01'), new Date('2014/03/01')])
+  this.time_scale = d3.time.scale();
 
   this.count_scale = d3.scale.linear()
     .range([this.height, 0]);
@@ -121,7 +120,7 @@ Flagship.prototype.load = function() {
   var split = $("#split").val() || 'month';
   var group = $("#group").val() || 'account';
 
-  d3.json(this.api + "?split=" + split + "&group=" + group, function(response) {
+  d3.json(this.api + "?split=" + split + "&group=" + group + "&since=" + since + "&until=" + until, function(response) {
     self.data = response;
     self.update();
   });
@@ -151,11 +150,15 @@ Flagship.prototype.update = function() {
     
     var layers = stack(this.data);
 
+    var since = $("#since").val() || '2013-04-01';
+    var until = $("#until").val() || '2014-03-31';
+    var split = $('#split').val() || 'month';
+
+
     this.barWidth = this.width / this.data[0].counts.length * 0.8;
     this.time_scale
-      .domain([new Date('2013/04/01'), new Date('2014/03/01')])
-      .range([this.barWidth, this.width - this.barWidth]);
-
+      .domain([new Date(since), new Date(until)])
+      .range([0, this.width]);
 
     if ($('#scale-checkbox').prop('checked')) {
       this.count_scale.domain([0, 2000])
@@ -168,18 +171,23 @@ Flagship.prototype.update = function() {
       .orient("bottom");
 
     if(this.dashboard) {
-		  time_axis.tickFormat(d3.time.format('%m'));
+		  time_axis.tickFormat(d3.time.format('%-m'));
     } else {
-      time_axis.tickFormat(d3.time.format('%Y/%m'));
+      if (split == 'week' || split == 'day') {
+        time_axis.tickFormat(d3.time.format('%Y/%-m/%-d'));
+      } else {
+        time_axis.tickFormat(d3.time.format('%Y/%-m'));
+      }
     }
       
     this.count_axis = d3.svg.axis()
       .scale(this.count_scale)
       .orient("left");
-    
+
     this.graph.select("svg.barchart").selectAll("g.x.axis").data(['']).enter().append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")")
+      .attr("transform", "translate(" + this.margin.left + "," + (this.height + this.margin.top )+ ")");
+    this.graph.select("svg.barchart g.x.axis")
       .call(time_axis);
 
     var yAxis = this.graph.select("svg.barchart").selectAll("g.y.axis").data(['']);
@@ -226,19 +234,16 @@ Flagship.prototype.update = function() {
       .on("mouseout", function(d) {
         d3.select(this).transition().style("opacity", "1");
         self.tooltip.style("visibility", "hidden");
-        
       })
 
     this.graph.select("svg.barchart g").selectAll(".layer")
       .selectAll("rect")
         .transition()
         .duration(duration)
-        .attr("x", function(d) { return self.time_scale(Date.parse(d.from)) - self.barWidth / 2; })
+        .attr("x", function(d) { return self.time_scale(Date.parse(d.from)) })
         .attr("y", function(d) { return self.count_scale(d.y0 + d.y); })
-        .attr("width", this.barWidth)
+        .attr("width", function(d) { return self.time_scale(Date.parse(d.until)) - self.time_scale(Date.parse(d.from)) })
         .attr("height", function(d) { return self.count_scale(d.y0) - self.count_scale(d.y0 + d.y); })
-
-
   }
 
   if(this.table) {
