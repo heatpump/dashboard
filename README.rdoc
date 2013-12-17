@@ -12,4 +12,12 @@ $ git push
 
 $ cap staging deploy
 
+$ git checkout production
+
+$ git merge master
+
+$ git checkout master
+
 $ cap production deploy
+
+$ cap production deploy:restart (or stop and start)
