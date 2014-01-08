@@ -22,41 +22,58 @@ module Dashboard
     def data_by_month
     
       date_since = params[:since].blank? ? Date.parse("2013-04-01") : Date.parse(params[:since])
-      date_until = params[:until].blank? ? Date.today : Date.parse(params[:until]);
+      date_until = params[:until].blank? ? Date.today : Date.parse(params[:until])
+      split = params[:split].blank? ? 'month' : params[:split]
       username = params[:username]
       
       arel = Entry.where(:date => date_since .. date_until)
       arel = arel.where(:username => username) unless username.blank?
-      result = arel.group(:year, :month, :tag).sum(:hour)
+
+      case split
+      when 'year'
+        arel = arel.group(:year, :tag)
+      when 'quarter'
+        arel = arel.group(:term, :tag)
+      when 'month'
+        arel = arel.group(:year, :month, :tag)
+      when 'week'
+        arel = arel.group(:week_date, :tag)
+      when 'day'
+        arel = arel.group(:date, :tag)
+      else
+        arel = arel.group(:year, :month, :tag)
+      end
+
+      result = arel.sum(:hour)
       
       date_list = [
-        '2013-04-01',
-        '2013-05-01',
-        '2013-06-01',
-        '2013-07-01',
-        '2013-08-01',
-        '2013-09-01',
-        '2013-10-01',
-        '2013-11-01',
-        '2013-12-01',
-        '2014-01-01',
-        '2014-02-01',
-        '2014-03-01'
+#        '2013-04-01',
+#        '2013-05-01',
+#        '2013-06-01',
+#        '2013-07-01',
+#        '2013-08-01',
+#        '2013-09-01',
+#        '2013-10-01',
+#        '2013-11-01',
+#        '2013-12-01',
+#        '2014-01-01',
+#        '2014-02-01',
+#        '2014-03-01'
       ]
       
       result_template = {
-        '2013-04-01' => 0,
-        '2013-05-01' => 0,
-        '2013-06-01' => 0,
-        '2013-07-01' => 0,
-        '2013-08-01' => 0,
-        '2013-09-01' => 0,
-        '2013-10-01' => 0,
-        '2013-11-01' => 0,
-        '2013-12-01' => 0,
-        '2014-01-01' => 0,
-        '2014-02-01' => 0,
-        '2014-03-01' => 0,
+#        '2013-04-01' => 0,
+#        '2013-05-01' => 0,
+#        '2013-06-01' => 0,
+#        '2013-07-01' => 0,
+#        '2013-08-01' => 0,
+#        '2013-09-01' => 0,
+#        '2013-10-01' => 0,
+#        '2013-11-01' => 0,
+#        '2013-12-01' => 0,
+#        '2014-01-01' => 0,
+#        '2014-02-01' => 0,
+#        '2014-03-01' => 0,
         'total' => 0,
       }
       
@@ -68,25 +85,57 @@ module Dashboard
 
       # SQLの出力を二次元配列に変換する
       result.each do |row|
-        year = row[0][0]
-        month = row[0][1]
-        tag = row[0][2]
-        hour = row[1]
-        
+
+        case split
+        when 'year'
+          year = row[0][0]
+          key = sprintf("\%04d-04-01", year.to_i)
+          tag = row[0][1]
+          hour = row[1]
+        when 'quarter'
+          key = row[0][0]
+          /(\d{4})-(\d)Q/ =~ row[0][0]
+          year = Regexp.last_match[1].to_i
+          quarter = Regexp.last_match[2].to_i
+          
+          if (quarter == 4)
+            year = year + 1
+          end
+
+          month = (quarter * 3 + 1) % 12
+          key = sprintf("\%04d-\%02d-01", year, month)
+          
+          tag = row[0][1]
+          hour = row[1]
+        when 'month'
+          year = row[0][0]
+          month = row[0][1]
+          key = sprintf("\%04d-\%02d-01", year.to_i, month.to_i)
+          tag = row[0][2]
+          hour = row[1]
+        when 'week'
+          key = row[0][0].strftime("%Y-%m-%d")
+          tag = row[0][1]
+          hour = row[1]
+        when 'day'
+          key = row[0][0].strftime("%Y-%m-%d")
+          tag = row[0][1]
+          hour = row[1]
+        end
+
         next if tag.blank?
         
-        date = sprintf("\%04d-\%02d-01", year.to_i, month.to_i)
         
         if result_matrix[tag].nil?
           result_matrix[tag] = result_template.clone
         end
-        result_matrix[tag][date] = hour
+        result_matrix[tag][key] = hour
       end
       
       # 各タグ毎のtotalを計算する
       result_matrix.each do |tag, value|
-        value.each do |date, hour|
-          result_matrix[tag]['total'] += hour unless date == 'total'
+        value.each do |key, hour|
+          result_matrix[tag]['total'] += hour unless key == 'total'
         end
       end
       
@@ -98,24 +147,24 @@ module Dashboard
       
         # Pxxxx
         if /P\d{4}/ =~ tag
-          value.each do |date, hour|
-            result_matrix['Pxxxx'][date] += hour
+          value.each do |key, hour|
+            result_matrix['Pxxxx'][key] = (result_matrix['Pxxxx'][key] || 0) + hour # TODO: check
           end
           p_children[tag] = result_matrix.delete(tag)
         end
 
         # Cxxxx
         if /C\d{4}/ =~ tag
-          value.each do |date, hour|
-            result_matrix['Cxxxx'][date] += hour
+          value.each do |key, hour|
+            result_matrix['Cxxxx'][key] = (result_matrix['Cxxxx'][key] || 0) + hour # TODO: check
           end
           c_children[tag] = result_matrix.delete(tag)
         end
 
         # GROUP
         if ['R', 'S', 'J', 'H', 'I', 'A', 'D', 'P', 'V', 'DSP'].index(tag)
-          value.each do |date, hour|
-            result_matrix['GROUP'][date] += hour
+          value.each do |key, hour|
+            result_matrix['GROUP'][key] = (result_matrix['GROUP'][key] || 0) + hour # TODO: check
           end
           group_children[tag] = result_matrix.delete(tag)
         end
@@ -137,9 +186,9 @@ module Dashboard
         found = false
         categories.each do |category_tag, tags|
           if tags.index(tag)
-            value.each do |date, hour|
-              if date != 'children'
-                result_matrix[category_tag][date] += hour
+            value.each do |key, hour|
+              if key != 'children'
+                result_matrix[category_tag][key] = (result_matrix[category_tag][key] || 0) + hour # TODO: check
               end
             end
             categories_children[category_tag][tag] = result_matrix.delete(tag)
@@ -164,12 +213,37 @@ module Dashboard
       # TOTALを計算
       total_matrix = result_template.clone
       result_matrix.each do |category_tag, value|
-        value.each do |date, hour|
-          if date != 'children'
-            total_matrix[date] += hour
+        value.each do |key, hour|
+          if key != 'children'
+            total_matrix[key] = (total_matrix[key] || 0) + hour # TODO: check
           end
         end
       end
+
+      # 空のkey を挿入、project code を追加
+      result_matrix.each do |category_tag, value|
+        total_matrix.each do |key, value|
+          result_matrix[category_tag][key] = result_matrix[category_tag][key] || 0
+        end
+
+        result_matrix[category_tag]['children'].each do |tag, value|
+          total_matrix.each do |key, value|
+            result_matrix[category_tag]['children'][tag][key] = result_matrix[category_tag]['children'][tag][key] || 0
+          end
+
+          if result_matrix[category_tag]['children'][tag]['children']
+            result_matrix[category_tag]['children'][tag]['children'].each do |tag2, value|
+              total_matrix.each do |key, value|
+                result_matrix[category_tag]['children'][tag]['children'][tag2][key] = result_matrix[category_tag]['children'][tag]['children'][tag2][key] || 0
+              end
+            end
+
+
+          end
+        end
+      end
+
+      # Projectの情報を付加
 
 #       response_data = []
 #       
@@ -193,7 +267,7 @@ module Dashboard
 #           response_data << {:tag => tag, :result => result, :total => total}
 #         end
 #       end
-      
+
       response_data = to_response_object(result_matrix)
       
       total_result = []
@@ -430,11 +504,11 @@ module Dashboard
     
       response_object = []
     
-      hash.each do |tag, value|
+      hash.sort.each do |tag, value|
         result = []
         total = 0
         children = nil
-        hash[tag].each do |key, hour|
+        hash[tag].sort.each do |key, hour|
           if key == 'children'
             children = hour
           elsif key == 'total'
@@ -443,11 +517,18 @@ module Dashboard
             result << {:key => key, :hour => hour}
           end
         end
+
+        project = Project.find_by_tag(tag)
+        if project
+          logger.debug(project)
+          code = project.code
+        end
+
         
         if children
-          response_object << {:tag => tag, :result => result, :total => total, :children => self.to_response_object(children)}
+          response_object << {:tag => tag, :code => code, :result => result, :total => total, :children => self.to_response_object(children)}
         else
-          response_object << {:tag => tag, :result => result, :total => total}
+          response_object << {:tag => tag, :code => code, :result => result, :total => total}
         end
         
       end

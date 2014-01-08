@@ -55,6 +55,7 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
   this.hour_scale = d3.scale.linear()
     .domain([0, 2000])
     .range([this.height, 0]);
+
   this.color_scale = d3.scale.ordinal()
     .domain([
       "INVESTMENT",
@@ -185,9 +186,15 @@ Workstyle.prototype.load = function() {
   
   var since = $("#since").val() || '2013-04-01';
   var until = $("#until").val() || '2014-03-31';
+  var split = $("#split").val() || 'month';
   var username = $("#username").val() || '';
   
-  d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&username=" + username, function(response) {
+  this.since = since;
+  this.until = until;
+  this.split = split;
+  this.username = username;
+
+  d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&split=" + split + "&username=" + username, function(response) {
 
     self.data_by_month = response;
  
@@ -284,7 +291,13 @@ Workstyle.prototype.update_month = function() {
     /*
      * barchart
      */
-   
+    var dateformat = d3.time.format("%Y-%m-%d");
+    var num = this.data_by_month.data[0].result.length;
+    this.barWidth = this.width / (num + 1) * 0.8;
+    this.time_scale
+      .domain([dateformat.parse(this.since), dateformat.parse(this.until)])
+      .range([this.barWidth / 2 / 0.8, this.width - this.barWidth / 2 / 0.8]);
+
     var stack = d3.layout.stack()
       .values(function(d) {return d.result})
       .x(function(d) {return d.key})
@@ -300,8 +313,32 @@ Workstyle.prototype.update_month = function() {
 
     var time_axis = d3.svg.axis()
       .scale(this.time_scale)
-      .tickFormat(d3.time.format('%Y/%m'))
+//      .tickFormat(d3.time.format('%Y/%m'))
       .orient("bottom");
+
+    if (this.split == 'year') {
+      time_axis.tickFormat(d3.time.format('%Y'));
+    } else if (this.split == 'quarter') {
+      time_axis.tickFormat(d3.time.format('%Y/%m'));
+    } else if (this.split == 'month') {
+      time_axis.tickFormat(d3.time.format('%Y/%m'));
+    } else if (this.split == 'week') {
+      time_axis.tickFormat(d3.time.format('%Y/%m/%d'));
+    } else if (this.split == 'day') {
+      time_axis.tickFormat(d3.time.format('%Y/%m/%d'));
+    }
+
+    // ticks
+    var tickValues = [];
+    this.data_by_month.data[0].result.forEach(function(d) {
+      tickValues.push(dateformat.parse(d.key));
+    });
+    if (tickValues.length < 20) {
+      time_axis.tickValues(tickValues);
+    } else {
+
+    }
+
       
     var hour_axis = d3.svg.axis()
       .scale(this.hour_scale)
@@ -340,6 +377,7 @@ Workstyle.prototype.update_month = function() {
     var rect = layer.selectAll("rect")
         .data(function(d) { return d.result.map(function(element) { 
           element.tag = d.tag;
+          element.code = d.code;
           element.rate = format(element.hour / total[element.key] * 100);
           return element; }) })
       .enter().append("rect")
@@ -351,8 +389,8 @@ Workstyle.prototype.update_month = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.tag + "</strong><br />" + 
-            d.key.substr(0,7) + " : " + format(d.hour) + "h (" + d.rate + "%)" );
+        self.tooltip.html("<strong>" + d.tag + "</strong> " + (d.code ? d.code : '') + "<br />" + 
+            d.key + " : " + format(d.hour) + "h (" + d.rate + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -432,7 +470,7 @@ Workstyle.prototype.update_month = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.data.tag + "</strong><br />" + format(d.data.total) + "h (" + format(d.data.total / total * 100) + "%)" );
+        self.tooltip.html("<strong>" + d.data.tag + "</strong> "  + (d.data.code ? d.data.code : '') + "<br />" + format(d.data.total) + "h (" + format(d.data.total / total * 100) + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
@@ -467,7 +505,7 @@ Workstyle.prototype.update_month = function() {
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.data.tag + "</strong><br />" + format(d.data.total) + "h (" + format(d.data.total / total * 100) + "%)" );
+        self.tooltip.html("<strong>" + d.data.tag + "</strong> <br />" + format(d.data.total) + "h (" + format(d.data.total / total * 100) + "%)" );
       })
       .on("mousemove", function(d) {
         self.tooltip.style("top", (d3.event.pageY - 10) + "px")
