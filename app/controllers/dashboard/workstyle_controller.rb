@@ -29,54 +29,78 @@ module Dashboard
       arel = Entry.where(:date => date_since .. date_until)
       arel = arel.where(:username => username) unless username.blank?
 
+      date_list = []
+      result_template = {}
+
       case split
       when 'year'
         arel = arel.group(:year, :tag)
+        key_since = date_since.prev_month.prev_month.prev_month.beginning_of_year.next_month.next_month.next_month
+        key_until = date_until.prev_month.prev_month.prev_month.beginning_of_year.next_month.next_month.next_month
+
+        key = key_since
+        while key <= key_until do
+          date_list.push key.strftime("%Y-%m-%d")
+          result_template[key.strftime("%Y-%m-%d")] = 0
+          key = key.next_year
+        end
+
       when 'quarter'
         arel = arel.group(:term, :tag)
+        key_since = date_since.beginning_of_quarter
+        key_until = date_until.beginning_of_quarter
+
+        key = key_since
+        while key <= key_until do
+          date_list.push key.strftime("%Y-%m-%d")
+          result_template[key.strftime("%Y-%m-%d")] = 0
+          key = key.next_month.next_month.next_month
+        end
+
       when 'month'
         arel = arel.group(:year, :month, :tag)
+        key_since = date_since.beginning_of_month
+        key_until = date_until.beginning_of_month
+
+        key = key_since
+        while key <= key_until do
+          date_list.push key.strftime("%Y-%m-%d")
+          result_template[key.strftime("%Y-%m-%d")] = 0
+          key = key.next_month
+        end
+
       when 'week'
         arel = arel.group(:week_date, :tag)
+        key_since = date_since.beginning_of_week
+        key_until = date_until.beginning_of_week
+
+        key = key_since
+        while key <= key_until do
+          date_list.push key.strftime("%Y-%m-%d")
+          result_template[key.strftime("%Y-%m-%d")] = 0
+          key = key.next_week
+        end
+
       when 'day'
         arel = arel.group(:date, :tag)
+        key_since = date_since.beginning_of_day
+        key_until = date_until.beginning_of_day
+
+        key = key_since
+        while key <= key_until do
+          date_list.push key.strftime("%Y-%m-%d")
+          result_template[key.strftime("%Y-%m-%d")] = 0
+          key = key.tomorrow
+        end
+
       else
         arel = arel.group(:year, :month, :tag)
       end
 
       result = arel.sum(:hour)
       
-      date_list = [
-#        '2013-04-01',
-#        '2013-05-01',
-#        '2013-06-01',
-#        '2013-07-01',
-#        '2013-08-01',
-#        '2013-09-01',
-#        '2013-10-01',
-#        '2013-11-01',
-#        '2013-12-01',
-#        '2014-01-01',
-#        '2014-02-01',
-#        '2014-03-01'
-      ]
-      
-      result_template = {
-#        '2013-04-01' => 0,
-#        '2013-05-01' => 0,
-#        '2013-06-01' => 0,
-#        '2013-07-01' => 0,
-#        '2013-08-01' => 0,
-#        '2013-09-01' => 0,
-#        '2013-10-01' => 0,
-#        '2013-11-01' => 0,
-#        '2013-12-01' => 0,
-#        '2014-01-01' => 0,
-#        '2014-02-01' => 0,
-#        '2014-03-01' => 0,
-        'total' => 0,
-      }
-      
+      result_template['total'] = 0
+
       result_matrix = {}
       
       ['Pxxxx', 'Cxxxx', 'GROUP', 'INVESTMENT', 'PROFIT', 'MANAGEMENT', 'OTHER', 'UNKNOWN'].each do |category_tag|
@@ -325,6 +349,7 @@ module Dashboard
         'mizutani@uniba.jp',
         'takumi@uniba.jp',
         'ryo@uniba.jp',
+        'mj@uniba.jp',
       ]
       
       result_template = {
@@ -346,7 +371,7 @@ module Dashboard
         'fukuma@uniba.jp' => 0,
         'mizutani@uniba.jp' => 0,
         'takumi@uniba.jp' => 0,
-        'ryo@uniba.jp' => 0,
+        'mj@uniba.jp' => 0,
         'total' => 0,
       }
       
@@ -504,11 +529,11 @@ module Dashboard
     
       response_object = []
     
-      hash.sort.each do |tag, value|
+      hash.each do |tag, value|
         result = []
         total = 0
         children = nil
-        hash[tag].sort.each do |key, hour|
+        hash[tag].each do |key, hour|
           if key == 'children'
             children = hour
           elsif key == 'total'

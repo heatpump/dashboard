@@ -630,6 +630,7 @@ Workstyle.prototype.update_person = function() {
         'mizutani@uniba.jp' : '水谷',
         'takumi@uniba.jp' : '阿部',
         'ryo@uniba.jp' : '村山',
+        'mj@unia.jp' : '森淳'
     }
     
     var tag_scale = d3.scale.ordinal().domain(['MM', 'SP', 'BO', 'PR', 'LAB', 'ME', 'GROUP', 'Cxxxx', 'Pxxxx', 'CR', 'OTHER']).range([1,2,3,4,5,6,7,8,9,10,11,12]);
