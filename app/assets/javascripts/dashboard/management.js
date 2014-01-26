@@ -216,7 +216,7 @@ Management.prototype.update = function() {
 
   this.color_scale = d3.scale.ordinal()
     .domain(['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'])
-    .range(['#3A88FE', '#006D8F', '#0042AA',  '#FF8647', '#6EC9DB', '#6EC9DB','#3A88FE',  '#0042AA', '#6EC9DB', '#6EC9DB', '#3C96D6','#076FDE']);
+    .range(['#3A88FE', '#006D8F', '#0042AA',  '#6EC9DB', '#FF8647', '#6EC9DB','#3A88FE',  '#0042AA', '#6EC9DB', '#6EC9DB', '#3C96D6','#076FDE']);
 
     var area = d3.svg.area()
         .x(function(d) {  return self.x_scale(d.key) + self.x_scale.rangeBand() / 2; })
