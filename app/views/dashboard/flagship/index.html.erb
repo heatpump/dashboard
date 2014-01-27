@@ -5,7 +5,10 @@
       <form class="form-inline">
         <div class="pull-left">
 
-            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" />
+            <div class="input-prepend">
+              <span class="add-on"><i class="icon-calendar"></i></span>
+              <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" />
+            </div>
             <input type="hidden" name="since" id="since" />
             <input type="hidden" name="until" id="until" />
 
@@ -57,12 +60,13 @@
     minDate: '2013-04-01',
     maxDate: '2014-03-31',
     ranges: {
+      'This Year (2013)': ['2013-04-01', '2014-03-31'],
+      'This Quarter (4Q)': ['2014-01-01', '2014-03-31'],
+      'Last Quarter (3Q)': ['2013-10-01', '2013-12-31'],
+      'This Month (2014/01)': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month (2013/12)': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')],
       'This Week': [moment().subtract('days', 6), new Date()],
-      'Last Week': [moment().subtract('days', 6 - 7), new Date()],
-      'This Month': [moment().startOf('month'), moment().endOf('month')],
-      'Last Month': [moment().startOf('month'), moment().endOf('month')],
-      'This Quarter': ['2013-10-01', '2013-12-31'],
-      'This Year': ['2013-04-01', '2014-03-31'],
+      'Last Week': [moment().subtract('days', 6 + 7), moment().subtract('days', 6)],
     },
   }, function(start, end) {
     $('#since').val(moment(start).format('YYYY-MM-DD'));

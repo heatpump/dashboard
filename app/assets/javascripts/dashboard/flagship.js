@@ -154,11 +154,13 @@ Flagship.prototype.update = function() {
     var until = $("#until").val() || '2014-03-31';
     var split = $('#split').val() || 'month';
 
+    var dateformat = d3.time.format("%Y-%m-%d");
 
-    this.barWidth = this.width / this.data[0].counts.length * 0.8;
+    var num = this.data[0].counts.length;
+    this.barWidth = this.width / (num + 1) * 0.8;
     this.time_scale
-      .domain([new Date(since), new Date(until)])
-      .range([0, this.width]);
+      .domain([dateformat.parse(since), dateformat.parse(until)])
+      .range([this.barWidth / 2 / 0.8, this.width - this.barWidth / 2 / 0.8]);
 
     if ($('#scale-checkbox').prop('checked')) {
       this.count_scale.domain([0, 2000])
@@ -173,11 +175,32 @@ Flagship.prototype.update = function() {
     if(this.dashboard) {
 		  time_axis.tickFormat(d3.time.format('%-m'));
     } else {
-      if (split == 'week' || split == 'day') {
-        time_axis.tickFormat(d3.time.format('%Y/%-m/%-d'));
-      } else {
-        time_axis.tickFormat(d3.time.format('%Y/%-m'));
+
+      if (split == 'year') {
+        time_axis.tickFormat(d3.time.format('%Y'));
+      } else if (split == 'quarter') {
+        time_axis.tickFormat(d3.time.format('%Y/%m'));
+      } else if (split == 'month') {
+        time_axis.tickFormat(d3.time.format('%Y/%m'));
+      } else if (split == 'week') {
+        time_axis.tickFormat(d3.time.format('%Y/%m/%d'));
+      } else if (split == 'day') {
+        time_axis.tickFormat(d3.time.format('%Y/%m/%d'));
       }
+
+      // ticks
+      var tickValues = [];
+      this.data[0].counts.forEach(function(d) {
+        console.log(d);
+        tickValues.push(new Date(Date.parse(d.from)));
+      });
+      if (tickValues.length < 20) {
+        time_axis.tickValues(tickValues);
+      } else {
+
+      }
+
+
     }
       
     this.count_axis = d3.svg.axis()
@@ -240,9 +263,9 @@ Flagship.prototype.update = function() {
       .selectAll("rect")
         .transition()
         .duration(duration)
-        .attr("x", function(d) { return self.time_scale(Date.parse(d.from)) })
+        .attr("x", function(d) { return self.time_scale(Date.parse(d.from)) - self.barWidth / 2 })
         .attr("y", function(d) { return self.count_scale(d.y0 + d.y); })
-        .attr("width", function(d) { return self.time_scale(Date.parse(d.until)) - self.time_scale(Date.parse(d.from)) })
+        .attr("width", function(d) { return self.barWidth })
         .attr("height", function(d) { return self.count_scale(d.y0) - self.count_scale(d.y0 + d.y); })
   }
 
