@@ -131,6 +131,9 @@ Management.prototype.load = function() {
   var self = this;
   var query = new google.visualization.Query(this.api);
 
+  var split = $("#split").val() || 'month';
+
+  this.split = split;
 
   query.setQuery("select A, G, E, C,K, L, M, B,  J, H, I,  D, F");
   query.send(function(response) {
@@ -164,7 +167,6 @@ Management.prototype.load = function() {
     var improvement_data = {};
     var challenge_data = {};
 
-
     d3.keys(data).forEach(function(key) {
     
       data[key] = d3.entries(data[key]);
@@ -187,10 +189,10 @@ Management.prototype.load = function() {
       }
 
     });
-    
-    self.data = d3.entries(data);
-    self.sales_data = d3.entries(sales_data);
-    self.cost_data = d3.entries(cost_data);
+
+    self.data = self.quarter_summary(d3.entries(data), split == 'quarter');
+    self.sales_data = self.quarter_summary(d3.entries(sales_data), split == 'quarter');
+    self.cost_data = self.quarter_summary(d3.entries(cost_data), split == 'quarter');
     self.improvement_data = d3.entries(improvement_data);
     self.challenge_data = d3.entries(challenge_data);
 
@@ -218,23 +220,27 @@ Management.prototype.update = function() {
     .domain(['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'])
     .range(['#3A88FE', '#006D8F', '#0042AA',  '#6EC9DB', '#FF8647', '#6EC9DB','#3A88FE',  '#0042AA', '#6EC9DB', '#6EC9DB', '#3C96D6','#076FDE']);
 
-    var area = d3.svg.area()
-        .x(function(d) {  return self.x_scale(d.key) + self.x_scale.rangeBand() / 2; })
-        .y0(function(d) { return self.y_scale(d.y0); })
-        .y1(function(d) { return self.y_scale(d.y0 + d.y); })
-        .interpolate("monotone");
-
-  
+  var area = d3.svg.area()
+      .x(function(d) {  return self.x_scale(d.key) + self.x_scale.rangeBand() / 2; })
+      .y0(function(d) { return self.y_scale(d.y0); })
+      .y1(function(d) { return self.y_scale(d.y0 + d.y); })
+      .interpolate("monotone");
 
   if(this.graph) {
     /*
      * cost barchart
      */
-    var layers = stack(this.cost_data);
+    var quarter_cost_data = this.quarter_summary(this.cost_data);
+
+    var layers = stack(quarter_cost_data);
    
     this.x_scale = d3.scale.ordinal()
       .domain(['2013/4', '2013/5', '2013/6', '2013/7', '2013/8', '2013/9', '2013/10', '2013/11', '2013/12', '2014/1', '2014/2', '2014/3'])
       .rangeRoundBands([0, this.width], .3);
+
+    if (this.split == 'quarter') {
+      this.x_scale.domain(['2013/4', '2013/7', '2013/10', '2014/1']);
+    }
 
     this.y_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.value, function(d) { return d.y0 + d.y}) })])
 
@@ -242,8 +248,6 @@ Management.prototype.update = function() {
       .scale(this.x_scale)
       .orient("bottom");
 
-    x_axis.tickFormat(function(d) { return d.substring(5)});
-      
     var y_axis = d3.svg.axis()
       .scale(this.y_scale)
       .orient("left");
@@ -342,6 +346,10 @@ Management.prototype.update = function() {
       .domain(['2013/4', '2013/5', '2013/6', '2013/7', '2013/8', '2013/9', '2013/10', '2013/11', '2013/12', '2014/1', '2014/2', '2014/3'])
       .rangeRoundBands([0, this.width], .3);
 
+    if (this.split == 'quarter') {
+      this.x_scale.domain(['2013/4', '2013/7', '2013/10', '2014/1']);
+    }
+
     this.y_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.value, function(d) { return d.y0 + d.y}) })])
 
     var x_axis = d3.svg.axis()
@@ -390,7 +398,7 @@ Management.prototype.update = function() {
     */
 
     var rect = layer.selectAll("rect")
-        .data(function(d) { console.log(d); return d.value })
+        .data(function(d) { return d.value })
       .enter().append("rect")
         .attr("x", function(d) { return self.x_scale(d.key); })
         .attr("y", function(d) { return self.y_scale(d.y0 + d.y); })
@@ -682,4 +690,40 @@ Management.prototype.update = function() {
     var append_td = tr.selectAll("td").data(function(d) { return d.value; }).enter();
     append_td.append("td").classed("amount", true).text(function(d) { return amount_format(d.value); });
   }
+}
+
+Management.prototype.quarter_summary = function(data, summary) {
+  if (!summary) return data;
+  var map = {
+    '2013/4' : 0,
+    '2013/5' : 0,
+    '2013/6' : 0,
+    '2013/7' : 1,
+    '2013/8' : 1,
+    '2013/9' : 1,
+    '2013/10' : 2,
+    '2013/11' : 2,
+    '2013/12' : 2,
+    '2014/1' : 3,
+    '2014/2' : 3,
+    '2014/3' : 3,
+  }
+  data.forEach(function(d) {
+    var quarter_value = [];
+
+    d.value.forEach(function(e) {
+      if (quarter_value[map[e.key]]) {
+        quarter_value[map[e.key]].value += e.value;
+      } else {
+        quarter_value[map[e.key]] = {
+          key: e.key,
+          value: e.value,
+          label: e.label
+        };
+      }
+    });
+
+    d.value = quarter_value;
+  });
+  return data;
 }

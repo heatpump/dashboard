@@ -5,19 +5,19 @@
       <form class="form-inline">
         <div class="pull-left">
 
-            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            <div class="input-prepend">
+              <span class="add-on"><i class="icon-calendar"></i></span>
+              <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            </div>
             <input type="hidden" name="span_start" id="span_start" />
             <input type="hidden" name="span_end" id="span_end" />
 
-            <select name="split" id="split" class="form-control" disabled>
-              <option value="year">by year</option>
+            <select name="split" id="split" class="form-control">
               <option value="quarter">by quarter</option>
               <option value="month" selected>by month</option>
-              <option value="week">by week</option>
-              <option value="day">by day</option>
             </select>
 
-          <button class="btn btn-primary" id="update" disabled>Update</button>
+          <button class="btn btn-primary" id="update">Update</button>
         </div>
         <div class="pull-right">
         </div>
@@ -49,8 +49,9 @@
  */
   google.load("visualization", "1");
   function onLoadVisualizationApi() {
-    console.log('aaa');
     var management = new Management('#graph', '#table');
+    $('button#update').on('click', function() { management.load(); return false; });
+
   }
   google.setOnLoadCallback(onLoadVisualizationApi); 
 
@@ -76,7 +77,6 @@
   $('#since').val('2013-04-01');
   $('#until').val('2014-03-31');
 
-  $('button#update').on('click', function() { management.load(); return false; });
   $("form").on("submit", function() { return false;})
 
 </script>
