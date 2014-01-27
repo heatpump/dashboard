@@ -5,7 +5,10 @@
 
       <form class="form-inline">
         <div class="pull-left">
-            <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            <div class="input-prepend">
+              <span class="add-on"><i class="icon-calendar"></i></span>
+              <input type="text" name="span" id="span" class="rangepicker form-control col-sm-4" disabled />
+            </div>
             <input type="hidden" name="since" id="since" />
             <input type="hidden" name="until" id="until" />
           <button class="btn btn-primary" id="update" disabled>Update</button>
