@@ -14,7 +14,8 @@
 function Management(graphSelector, tableSelector, dashboard) {
 
   // datasource url
-  this.api = "https://docs.google.com/a/uniba.jp/spreadsheet/tq?key=0Ao5GQ0WIiwnXdG5uS0lfV0VZZWluYmJjOTQ1Y0t1NFE&gid=33";
+  this.api1 = "https://docs.google.com/a/uniba.jp/spreadsheet/tq?key=0Ao5GQ0WIiwnXdG5uS0lfV0VZZWluYmJjOTQ1Y0t1NFE&gid=33";
+  this.api2 = "https://docs.google.com/a/uniba.jp/spreadsheet/tq?key=0AhSLrdcO_zMpdE1aRXlfWmtoZnBvb05sV0wwTUxwcEE&gid=9";
 
   // select
   this.graph = undefined;
@@ -84,6 +85,13 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
             .attr("class", "challengechart")
           .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+      var q_saleschart = this.graph.append("div").attr("class", "tab-pane").attr("id", "q_sales").append("svg")
+            .attr("width", this.width + this.margin.left + this.margin.right)
+            .attr("height", this.height + this.margin.top + this.margin.bottom)
+            .attr("class", "q_sales")
+          .append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
       
       var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
     }
@@ -127,9 +135,13 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
  *
  */
 Management.prototype.load = function() {
+  this.load_api1();
+  this.load_api2();
+}
 
+Management.prototype.load_api1 = function() {
   var self = this;
-  var query = new google.visualization.Query(this.api);
+  var query = new google.visualization.Query(this.api1);
 
   var split = $("#split").val() || 'month';
 
@@ -197,6 +209,56 @@ Management.prototype.load = function() {
     self.challenge_data = d3.entries(challenge_data);
 
     self.update();
+
+  });
+}
+
+Management.prototype.load_api2 = function() {
+  var self = this;
+  var query = new google.visualization.Query(this.api2);
+
+  var since = $("#since").val() || '2013-04-01';
+  var until = $("#until").val() || '2014-03-31';
+
+  this.since = since;
+  this.until = until;
+
+  query.setQuery("select A, B, C, D, E, F, G, H");
+  /*
+  A: 請求日
+  B: 状態
+  C: 顧客名
+  D: 案件名
+  E: 金額(税別)
+  F: 金額(税込)
+  G: 支払いサイト
+  H: 入金予定月
+  */
+  query.send(function(response) {
+    // (7) 取得したデータをリスト表示
+    var datatable = response.getDataTable();
+    var data = [];
+
+    for (var row = 0; row < datatable.getNumberOfRows(); row++) {
+
+      if (datatable.getValue(row, 5)) {
+        var line = { values: [{
+          date: datatable.getValue(row, 0),
+          state: datatable.getValue(row, 1),
+          client: datatable.getValue(row, 2),
+          deal: datatable.getValue(row, 3),
+          amount: datatable.getValue(row, 4),
+          amount_tax_included: datatable.getValue(row, 5),
+          site: datatable.getValue(row, 6),
+          payday: datatable.getValue(row, 7)
+          }]
+        };
+        data.push(line);
+      }
+    }
+    
+    self.salesdata = data;
+    self.update_salesdata();
 
   });
 }
@@ -624,7 +686,6 @@ Management.prototype.update = function() {
 
     layer.append("path").attr("d", function(d) { return area(d.value) })
       .on("mouseover", function(d) {
-        console.log(d)
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
         self.tooltip.html("<strong>" + d.value[11].label + "</strong><br />累計 " + amount_format(d.value[11].value) + "円" );
@@ -695,6 +756,129 @@ Management.prototype.update = function() {
     append_td.append("td").classed("amount", true).text(function(d) { return amount_format(d.value); });
   }
 }
+
+Management.prototype.update_salesdata = function() {
+  var self = this;
+  var format = d3.format(".2f");
+  var amount_format = d3.format("3,f");
+  var dateformat = d3.time.format("%Y-%m-%d");
+
+  // 第二階層を取得
+  var stack = d3.layout.stack()
+    .values(function(d) {return d.values; })
+    .x(function(d) {return 'A'})
+    .y(function(d) {return d.amount});
+
+  if(this.graph) {
+
+    var layers = stack(this.salesdata.filter(function(d) { return new Date('2014-01-01') <= d.values[0].date && d.values[0].date <= new Date('2014-03-31'); }));
+    var x_scale = d3.scale.ordinal()
+      .domain(['4Q'])
+      .rangeRoundBands([0, this.width], .3);
+
+    var y_scale = d3.scale.linear()
+      .domain([0, d3.max(layers, function(d) { return d3.max(d.values, function(d) { return d.y0 + d.y}) }) + 5000000])
+      .range([this.height, 0]);
+
+    var x_axis = d3.svg.axis()
+      .scale(x_scale)
+      .orient("bottom");
+
+    var y_axis = d3.svg.axis()
+      .scale(y_scale)
+      .orient("left");
+    
+    var chart = this.graph.select("svg.q_sales");
+    
+    chart.selectAll("g.axis").remove();
+    
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")")
+      .call(x_axis);
+
+    chart.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+      .call(y_axis);
+      
+    chart.select(".y.axis")
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .attr("text-anchor", "end")
+        .text("Yen");
+    
+    var self = this;
+    chart.select("g").selectAll(".layer").remove();
+
+    var layer = chart.select("g").selectAll(".layer")
+        .data(layers)
+      .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d,i) { 
+          switch(d.values[0].date.getMonth() % 3) {
+            case 0: return '#53d5fc';
+            case 1: return '#35aadc';
+            case 2: return '#0057d5';
+          }
+        })/*
+        .style("opacity", function(d,i) { 
+          switch(d.values[0].state) {
+            case '請求済': return 1;
+            case '受注済': return 0.8;
+            case '受注見込': return 0.5;
+          }
+        })*/
+
+        ;
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d.values })
+      .enter().append("rect")
+        .attr("x", function(d) { return x_scale('A'); })
+        .attr("y", function(d) { return y_scale(d.y0 + d.y); })
+        .attr("width", x_scale.rangeBand())
+        .attr("height", function(d) { return y_scale(d.y0) - y_scale(d.y0 + d.y); })
+      .on("mouseover", function(d) {
+        d3.select(this).transition().style("opacity", "0.8");
+        self.tooltip.style("visibility", "visible");
+        self.tooltip.html("<strong>" + dateformat(d.date) + '<br />' + d.client + " " + d.deal + "</strong><br />" + amount_format(d.amount) + "円 (" + d.state + ")" );
+      })
+      .on("mousemove", function(d) {
+        self.tooltip.style("top", (d3.event.pageY - 10) + "px")
+          .style("left",(d3.event.pageX + 10) + "px");
+      })
+      .on("mouseout", function(d) {
+        d3.select(this).transition().style("opacity", "1");
+        self.tooltip.style("visibility", "hidden");
+        
+      })
+      /*
+      chart.selectAll(".legent").remove();
+      var bar_legend = chart.selectAll(".legend")
+          .data(this.cost_data)
+        .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
+    
+      bar_legend.append("rect")
+          .attr("x", 140)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d) { return '#abc' } );
+    
+      bar_legend.append("text")
+          .attr("x", 130)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) { return d.deal; });
+      */
+  }
+}
+
 
 Management.prototype.quarter_summary = function(data, summary) {
   if (!summary) return data;
