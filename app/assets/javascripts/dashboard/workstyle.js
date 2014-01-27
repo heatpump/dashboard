@@ -563,6 +563,7 @@ Workstyle.prototype.update_month = function() {
       .append("th")
       .attr("class", "date")
       .text(function(d) { return d.key.substr(0,7); });
+    head_row.append("th").text("TOTAL");
   
     month_table.selectAll("tbody tr").remove();
     var tr = month_table.select("tbody")
@@ -574,11 +575,16 @@ Workstyle.prototype.update_month = function() {
     tr.append("th")
       .text(function(d) { return d.tag; })
       .style("background-color", function(d) { return self.color_by_tag(d.tag)});
-    tr.selectAll("td").data(function(d) {return d.result; })
+    tr.selectAll("td.month").data(function(d) {return d.result; })
       .enter()
       .append("td")
-      .attr("class", "hour")
+      .attr("class", "month hour")
       .text(function(d) { return format(d.hour) + "h"; });
+    tr.selectAll("td.total").data(function(d) {return [d3.sum(d.result, function(d) { return d.hour; })]; })
+      .enter()
+      .append("td")
+      .attr("class", "total hour")
+      .text(function(d) { return format(d) + "h"; });
 
     month_table.selectAll("tfoot tr").remove();
     var foot_row = month_table.select("tfoot").append("tr");
@@ -588,6 +594,10 @@ Workstyle.prototype.update_month = function() {
       .append("th")
       .attr("class", "total hour")
       .text(function(d) { return format(d.hour) + "h"});
+
+    foot_row.append("th")
+      .attr("class", "total hour")
+      .text(format(d3.sum(this.data_by_month.total.result, function(d) { return d.hour; })) + "h");
 
   }
 }

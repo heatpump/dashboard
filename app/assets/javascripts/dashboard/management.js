@@ -248,6 +248,10 @@ Management.prototype.update = function() {
       .scale(this.x_scale)
       .orient("bottom");
 
+    if (this.dashboard) {
+      x_axis.tickFormat(function(d) { return d.substring(5)});
+    }
+
     var y_axis = d3.svg.axis()
       .scale(this.y_scale)
       .orient("left");
