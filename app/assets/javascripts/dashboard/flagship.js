@@ -120,6 +120,11 @@ Flagship.prototype.load = function() {
   var split = $("#split").val() || 'month';
   var group = $("#group").val() || 'account';
 
+  this.since = since;
+  this.until = until;
+  this.split = split;
+  this.group = group;
+
   d3.json(this.api + "?split=" + split + "&group=" + group + "&since=" + since + "&until=" + until, function(response) {
     self.data = response;
     self.update();

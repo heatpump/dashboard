@@ -313,7 +313,6 @@ Workstyle.prototype.update_month = function() {
 
     var time_axis = d3.svg.axis()
       .scale(this.time_scale)
-//      .tickFormat(d3.time.format('%Y/%m'))
       .orient("bottom");
 
     if (this.split == 'year') {
