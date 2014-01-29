@@ -153,11 +153,23 @@ Flagship.prototype.update = function() {
       .x(function(d) {return d.until})
       .y(function(d) {return d.count});
     
-    var layers = stack(this.data);
-
     var since = $("#since").val() || '2013-04-01';
     var until = $("#until").val() || '2014-03-31';
     var split = $('#split').val() || 'month';
+    var zoom = $('#scale-checkbox').prop('checked');
+    var exclude = $('#exclude-checkbox').prop('checked')
+
+    if (exclude) {
+      console.log(this.data)
+      var layers = stack(this.data.filter(function(e) {
+        if (e.account == 'leicay')
+          return false;
+        else
+          return true;
+      }));
+    } else {
+      var layers = stack(this.data);
+    }
 
     var dateformat = d3.time.format("%Y-%m-%d");
 
@@ -167,7 +179,7 @@ Flagship.prototype.update = function() {
       .domain([dateformat.parse(since), dateformat.parse(until)])
       .range([this.barWidth / 2 / 0.8, this.width - this.barWidth / 2 / 0.8]);
 
-    if ($('#scale-checkbox').prop('checked')) {
+    if (zoom) {
       this.count_scale.domain([0, 2000])
     } else {
       this.count_scale.domain([0, d3.max(layers, function(d) { return d3.max(d.counts, function(d) { return d.y0 + d.y}) })])
@@ -204,8 +216,6 @@ Flagship.prototype.update = function() {
       } else {
 
       }
-
-
     }
       
     this.count_axis = d3.svg.axis()
