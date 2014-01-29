@@ -774,7 +774,7 @@ Management.prototype.update_salesdata = function() {
     var layers = stack(this.salesdata.filter(function(d) { return new Date('2014-01-01') <= d.values[0].date && d.values[0].date <= new Date('2014-03-31'); }));
     var x_scale = d3.scale.ordinal()
       .domain(['4Q'])
-      .rangeRoundBands([0, this.width], .3);
+      .rangeRoundBands([0, this.width * 0.6], .3);
 
     var y_scale = d3.scale.linear()
       .domain([0, d3.max(layers, function(d) { return d3.max(d.values, function(d) { return d.y0 + d.y}) }) + 5000000])
@@ -876,6 +876,34 @@ Management.prototype.update_salesdata = function() {
           .style("text-anchor", "end")
           .text(function(d) { return d.deal; });
       */
+
+      console.log(this.salesdata);
+      var total = [];
+      total[0] = d3.sum(this.salesdata.filter(function(d) { return new Date('2014-01-01') <= d.values[0].date && d.values[0].date <= new Date('2014-03-31'); }), function(d) { return d.values[0].amount; })
+      total[1] = d3.sum(this.salesdata.filter(function(d) { return new Date('2014-01-01') <= d.values[0].date && d.values[0].date <= new Date('2014-01-31'); }), function(d) { return d.values[0].amount; })
+      total[2] = d3.sum(this.salesdata.filter(function(d) { return new Date('2014-02-01') <= d.values[0].date && d.values[0].date <= new Date('2014-02-28'); }), function(d) { return d.values[0].amount; })
+      total[3] = d3.sum(this.salesdata.filter(function(d) { return new Date('2014-03-01') <= d.values[0].date && d.values[0].date <= new Date('2014-03-31'); }), function(d) { return d.values[0].amount; })
+      console.log(total);
+
+      var data_container = chart.append("g")
+        .attr("class", "data")
+        .attr("text-anchor", "end")
+        .attr("font-size", "12pt")
+        .attr("transform", "translate(1060,80)")
+
+      data_container.append("rect").attr("x", -290).attr("y", 60 - 15).style("fill", '#0057d5').attr("width", 18).attr("height", 18);
+      data_container.append("text").attr("x", -160).attr("y", 60).text("3月 売上見込:");
+      data_container.append("text").attr("y", 60).text(numberFormat(total[3]) + " 円");
+      data_container.append("rect").attr("x", -290).attr("y", 140 - 15).style("fill", '#35aadc').attr("width", 18).attr("height", 18);
+      data_container.append("text").attr("x", -160).attr("y", 140).text("2月 売上見込:");
+      data_container.append("text").attr("y", 140).text(numberFormat(total[2]) + " 円");
+      data_container.append("rect").attr("x", -290).attr("y", 220 - 15).style("fill", '#53d5fc').attr("width", 18).attr("height", 18);
+      data_container.append("text").attr("x", -160).attr("y", 220).text("1月 売上見込:");
+      data_container.append("text").attr("y", 220).text(numberFormat(total[1]) + " 円");
+      data_container.append("text").attr("x", -160).attr("y", 320).text("4Q 売上見込合計:");
+      data_container.append("text").attr("y", 320).text(numberFormat(total[0]) + " 円");
+
+
   }
 }
 
