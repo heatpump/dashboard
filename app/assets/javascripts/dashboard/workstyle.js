@@ -119,21 +119,21 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
     // clear
     this.graph.selectAll("div").remove();
 
+    var piechart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "piechart").append("svg")
+          .attr("width", this.width + this.margin.left + this.margin.right)
+          .attr("height", this.height + this.margin.top + this.margin.bottom)
+          .attr("class", "piechart")
+        .append("g")
+          .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
+    
     if (!this.dashboard) {
-      var barchart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "barchart").append("svg")
+      var barchart = this.graph.append("div").attr("class", "tab-pane").attr("id", "barchart").append("svg")
             .attr("width", this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
             .attr("class", "barchart")
           .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
     }
-    
-    var piechart = this.graph.append("div").attr("class", "tab-pane").attr("id", "piechart").append("svg")
-          .attr("width", this.width + this.margin.left + this.margin.right)
-          .attr("height", this.height + this.margin.top + this.margin.bottom)
-          .attr("class", "piechart")
-        .append("g")
-          .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
     
     if (!this.dashboard) {
       var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")

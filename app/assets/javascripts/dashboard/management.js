@@ -56,7 +56,7 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
     // clear
     this.graph.selectAll("div").remove();
 
-    var barchart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "barchart").append("svg")
+    var barchart = this.graph.append("div").attr("class", "tab-pane").attr("id", "barchart").append("svg")
           .attr("width", this.width + this.margin.left + this.margin.right)
           .attr("height", this.height + this.margin.top + this.margin.bottom)
           .attr("class", "barchart")
@@ -86,7 +86,7 @@ Management.prototype.attachTo = function(graphSelector, tableSelector) {
           .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-      var q_saleschart = this.graph.append("div").attr("class", "tab-pane").attr("id", "q_sales").append("svg")
+      var q_saleschart = this.graph.append("div").attr("class", "tab-pane active").attr("id", "q_sales").append("svg")
             .attr("width", this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
             .attr("class", "q_sales")
@@ -777,7 +777,7 @@ Management.prototype.update_salesdata = function() {
       .rangeRoundBands([0, this.width * 0.6], .3);
 
     var y_scale = d3.scale.linear()
-      .domain([0, d3.max(layers, function(d) { return d3.max(d.values, function(d) { return d.y0 + d.y}) }) + 5000000])
+      .domain([0, d3.max(layers, function(d) { return d3.max(d.values, function(d) { return d.y0 + d.y}) }) + 10000000])
       .range([this.height, 0]);
 
     var x_axis = d3.svg.axis()
