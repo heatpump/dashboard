@@ -73,23 +73,24 @@
  */
 $(function(){
   var workstyle = new Workstyle("#graph", "#table");
-  
+
   $("#update").on("click", function() { workstyle.load(); return false;})
   $("form").on("submit", function() { return false;})
   $("#show-detail").on("change", function() { workstyle.change(); return false;})
 
   $('.rangepicker').daterangepicker({
     format: 'YYYY-MM-DD',
-    startDate: '2013-04-01',
-    endDate: '2014-03-31',
+    startDate: '2014-04-01',
+    endDate: '2015-03-31',
     minDate: '2013-04-01',
-    maxDate: '2014-03-31',
+    maxDate: '2015-03-31',
     ranges: {
-      'This Year (2013)': ['2013-04-01', '2014-03-31'],
-      'This Quarter (4Q)': ['2014-01-01', '2014-03-31'],
-      'Last Quarter (3Q)': ['2013-10-01', '2013-12-31'],
-      'This Month (2014/01)': [moment().startOf('month'), moment().endOf('month')],
-      'Last Month (2013/12)': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')],
+      'This Year (2014)': ['2014-04-01', '2015-03-31'],
+      'Last Year (2013)': ['2013-04-01', '2014-03-31'],
+      'This Quarter (1Q)': ['2014-04-01', '2014-06-30'],
+      'Last Quarter (4Q)': ['2014-01-01', '2014-03-31'],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')],
       'This Week': [moment().subtract('days', 6), new Date()],
       'Last Week': [moment().subtract('days', 6 + 7), moment().subtract('days', 6)],
     },
@@ -97,9 +98,9 @@ $(function(){
     $('#since').val(moment(start).format('YYYY-MM-DD'));
     $('#until').val(moment(end).format('YYYY-MM-DD'));
   });
-  $('#span').val('2013-04-01 - 2014-03-31');
-  $('#since').val('2013-04-01');
-  $('#until').val('2014-03-31');
+  $('#span').val('2014-04-01 - 2015-03-31');
+  $('#since').val('2014-04-01');
+  $('#until').val('2015-03-31');
 
 });
 </script>
