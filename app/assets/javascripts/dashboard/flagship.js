@@ -9,11 +9,11 @@
  * domへのattachと、data、optionの変更というinterface
  * dataが追加される / optionが変更されると、updateが呼ばれる
  * updateはdomにattachされていない状態でも失敗はしない
- * 
+ *
  * @constructor
  */
 function Flagship(graphSelector, tableSelector, dashboard) {
-  
+
   /**
    * Constants / Configurations
    *
@@ -21,7 +21,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
 
   // datasource url
   this.api = "/dashboard/api/flagship.json";
-  
+
   // select
   this.graph = undefined;
   this.table = undefined;
@@ -39,7 +39,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
     this.width = 1170 - this.margin.left - this.margin.right;
     this.height = 500 - this.margin.top - this.margin.bottom;
   }
-    
+
   // d3 elements
   this.time_scale = d3.time.scale();
 
@@ -47,7 +47,7 @@ function Flagship(graphSelector, tableSelector, dashboard) {
     .range([this.height, 0]);
 
   this.color_scale = d3.scale.category20();
-    
+
   this.attachTo(graphSelector, tableSelector);
   this.load();
 }
@@ -60,11 +60,11 @@ function Flagship(graphSelector, tableSelector, dashboard) {
 Flagship.prototype.attachTo = function(graphSelector, tableSelector) {
 
   this.dateformat = d3.time.format('%Y/%m/%d');
-  
+
   if (graphSelector) {
 
     this.graph = d3.select(graphSelector);
-    
+
     // clear
     this.graph.selectAll("div").remove();
 
@@ -74,7 +74,7 @@ Flagship.prototype.attachTo = function(graphSelector, tableSelector) {
 	    .attr("class", "barchart")
 	  .append("g")
 	    .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-	    
+
     // initialize tooltip
     this.tooltip = this.graph
       .append("div")
@@ -87,16 +87,16 @@ Flagship.prototype.attachTo = function(graphSelector, tableSelector) {
   } else {
     this.graph = undefined;
   }
-  
+
   if (tableSelector) {
-    
+
     this.table = d3.select(tableSelector);
-    
+
     // clear
     this.table.selectAll("table").remove();
-    
+
     var month_table = this.table.append("table").attr("class", "table table-bordered");
-    
+
     month_table.append("thead");
     month_table.append("tfoot");
     month_table.append("tbody");
@@ -114,9 +114,9 @@ Flagship.prototype.attachTo = function(graphSelector, tableSelector) {
  */
 Flagship.prototype.load = function() {
   var self = this;
-  
-  var since = $("#since").val() || '2013-04-01';
-  var until = $("#until").val() || '2014-03-31';
+
+  var since = $("#since").val() || '2014-04-01';
+  var until = $("#until").val() || '2015-03-31';
   var split = $("#split").val() || 'month';
   var group = $("#group").val() || 'account';
 
@@ -152,9 +152,9 @@ Flagship.prototype.update = function() {
       .values(function(d) {return d.counts})
       .x(function(d) {return d.until})
       .y(function(d) {return d.count});
-    
-    var since = $("#since").val() || '2013-04-01';
-    var until = $("#until").val() || '2014-03-31';
+
+    var since = $("#since").val() || '2014-04-01';
+    var until = $("#until").val() || '2015-03-31';
     var split = $('#split').val() || 'month';
     var zoom = $('#scale-checkbox').prop('checked');
     var exclude = $('#exclude-checkbox').prop('checked')
@@ -217,7 +217,7 @@ Flagship.prototype.update = function() {
 
       }
     }
-      
+
     this.count_axis = d3.svg.axis()
       .scale(this.count_scale)
       .orient("left");
@@ -254,7 +254,7 @@ Flagship.prototype.update = function() {
         .style("fill", function(d, index) { return self.color_scale(index); });
 
     var rect = layer.selectAll("rect")
-        .data(function(d) { return d.counts.map(function(element) { 
+        .data(function(d) { return d.counts.map(function(element) {
           element.label = d.label;
           element.account = d.account;
           element.service = d.service;
@@ -293,7 +293,7 @@ Flagship.prototype.update = function() {
     th_item.enter().append("th").attr("class", "item");
     th_item.exit().remove();
     th_item.text(function(d) { return self.dateformat(new Date(d.from)); });
-  
+
     var tr = self.table.select('table tbody').selectAll("tr").data(self.data);
     tr.enter().append("tr").append("th");
     tr.exit().remove();

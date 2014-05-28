@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dashboard (0.2.3)
+    dashboard (0.2.4)
       bootstrap-daterangepicker-rails
       bootstrap-rails-engine
       rails (~> 3.2.13)

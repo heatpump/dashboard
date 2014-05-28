@@ -9,11 +9,11 @@
  * domへのattachと、data、optionの変更というinterface
  * dataが追加される / optionが変更されると、updateが呼ばれる
  * updateはdomにattachされていない状態でも失敗はしない
- * 
+ *
  * @constructor
  */
 function Workstyle(graphSelector, tableSelector, dashboard) {
-  
+
   /**
    * Constants / Configurations
    *
@@ -23,7 +23,7 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
   this.api_by_month = "/dashboard/api/workstyle/by_month.json";
   this.api_by_person = "/dashboard/api/workstyle/by_person.json";
   this.api_check = "/dashboard/api/workstyle/by_person.json";
-  
+
   // select
   this.graph = undefined;
   this.table = undefined;
@@ -46,12 +46,12 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
     this.barWidth = this.width / 12 * 0.8;
   }
   this.show_detail = $('#show-detail').prop('checked');
-    
+
   // d3 elements
   this.time_scale = d3.time.scale()
-    .domain([new Date('2013/04/01'), new Date('2014/03/01')])
+    .domain([new Date('2014/04/01'), new Date('2015/03/01')])
     .range([this.barWidth, this.width - this.barWidth]);
-    
+
   this.hour_scale = d3.scale.linear()
     .domain([0, 2000])
     .range([this.height, 0]);
@@ -89,7 +89,7 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
         "rgb(0,145,206)",
       "rgb(255,252,65)",
       "rgb(200,200,200)"]);
-  
+
   this.color_by_tag = function(tag) {
     var groups = d3.set(['R', 'S', 'J', 'H', 'I', 'A', 'D', 'P', 'V', 'DSP']);
     if (tag.match(/P\d{4}/)) {
@@ -100,8 +100,8 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
       tag = 'GROUP';
     }
     return this.color_scale(tag);
-  }  
-  
+  }
+
   this.attachTo(graphSelector, tableSelector);
   this.load();
 }
@@ -112,10 +112,10 @@ function Workstyle(graphSelector, tableSelector, dashboard) {
  *
  */
 Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
-  
+
   if (graphSelector) {
     this.graph = d3.select(graphSelector);
-    
+
     // clear
     this.graph.selectAll("div").remove();
 
@@ -125,7 +125,7 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
           .attr("class", "piechart")
         .append("g")
           .attr("transform", "translate(" + (this.width + this.margin.left + this.margin.right) / 2 + "," + (this.height + this.margin.top + this.margin.bottom) / 2 + ")");
-    
+
     if (!this.dashboard) {
       var barchart = this.graph.append("div").attr("class", "tab-pane").attr("id", "barchart").append("svg")
             .attr("width", this.width + this.margin.left + this.margin.right)
@@ -134,10 +134,10 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
           .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
     }
-    
+
     if (!this.dashboard) {
       var usertable = this.graph.append("div").attr("class", "tab-pane").attr("id", "user_table")
-    
+
       var person_table = usertable.append("table").attr("class", "table table-bordered person");
       person_table.append("thead");
       person_table.append("tfoot");
@@ -152,24 +152,24 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
         .style("visibility", "hidden")
         .text("a simple tooltip")
         .attr("class", "data-tooltip");
-        
+
   } else {
     this.graph = undefined;
   }
-  
+
   if (tableSelector) {
     this.table = d3.select(tableSelector);
-    
+
     // clear
     this.table.selectAll("table").remove();
-    
+
     var month_table = this.table.append("table").attr("class", "table table-bordered month");
-    
+
     month_table.append("thead");
     month_table.append("tfoot");
     month_table.append("tbody");
 
-    
+
   } else {
     this.table = undefined;
   }
@@ -183,12 +183,12 @@ Workstyle.prototype.attachTo = function(graphSelector, tableSelector) {
  */
 Workstyle.prototype.load = function() {
   var self = this;
-  
-  var since = $("#since").val() || '2013-04-01';
-  var until = $("#until").val() || '2014-03-31';
+
+  var since = $("#since").val() || '2014-04-01';
+  var until = $("#until").val() || '2015-03-31';
   var split = $("#split").val() || 'month';
   var username = $("#username").val() || '';
-  
+
   this.since = since;
   this.until = until;
   this.split = split;
@@ -197,7 +197,7 @@ Workstyle.prototype.load = function() {
   d3.json(this.api_by_month + "?since=" + since + "&until=" + until + "&split=" + split + "&username=" + username, function(response) {
 
     self.data_by_month = response;
- 
+
      // 第二階層を取得
     var data_replace = [];
     self.data_by_month.data.forEach(function(d) {
@@ -230,7 +230,7 @@ Workstyle.prototype.load = function() {
       }
     })
     self.data_by_month.data_3rd = data_replace;
-   
+
     self.update_month();
   });
 
@@ -240,7 +240,7 @@ Workstyle.prototype.load = function() {
 
     // 第二階層を取得
     var data_replace = [];
-    
+
     self.data_by_person.data.forEach(function(d) {
       if (d['children'] && d['tag'] != 'UNKNOWN' && d['tag'] != 'OTHER') {
         d['children'].forEach(function(d) {
@@ -302,7 +302,7 @@ Workstyle.prototype.update_month = function() {
       .values(function(d) {return d.result})
       .x(function(d) {return d.key})
       .y(function(d) {return d.hour});
-    
+
     if (this.show_detail) {
       var layers = stack(this.data_by_month.data_3rd);
     } else {
@@ -338,11 +338,11 @@ Workstyle.prototype.update_month = function() {
 
     }
 
-      
+
     var hour_axis = d3.svg.axis()
       .scale(this.hour_scale)
       .orient("left");
-    
+
     this.graph.select("svg.barchart").selectAll("g.x.axis").data(['']).enter().append("g")
       .attr("class", "x axis")
       .attr("transform", "translate("+ this.margin.left +"," + (this.height + this.margin.top )+ ")");
@@ -360,21 +360,21 @@ Workstyle.prototype.update_month = function() {
         .text("Hours");
     this.graph.select("svg.barchart g.y.axis")
       .call(hour_axis);
-      
+
     this.graph.select("svg.barchart g").selectAll(".layer").remove();
     var layer = this.graph.select("svg.barchart g").selectAll(".layer")
         .data(layers)
       .enter().append("g")
         .attr("class", "layer")
         .style("fill", function(d) { return self.color_by_tag(d.tag); });
-    
+
     var total = {};
     this.data_by_month.total.result.forEach(function(entry) {
       total[entry.date] = entry.hour;
     });
 
     var rect = layer.selectAll("rect")
-        .data(function(d) { return d.result.map(function(element) { 
+        .data(function(d) { return d.result.map(function(element) {
           element.tag = d.tag;
           element.code = d.code;
           element.rate = format(element.hour / total[element.key] * 100);
@@ -384,11 +384,11 @@ Workstyle.prototype.update_month = function() {
         .attr("y", function(d) { return self.hour_scale(d.y0 + d.y); })
         .attr("width", this.barWidth)
         .attr("height", function(d) { return self.hour_scale(d.y0) - self.hour_scale(d.y0 + d.y); })
-        
+
       .on("mouseover", function(d) {
         d3.select(this).transition().style("opacity", "0.8");
         self.tooltip.style("visibility", "visible");
-        self.tooltip.html("<strong>" + d.tag + "</strong> " + (d.code ? d.code : '') + "<br />" + 
+        self.tooltip.html("<strong>" + d.tag + "</strong> " + (d.code ? d.code : '') + "<br />" +
             d.key + " : " + format(d.hour) + "h (" + d.rate + "%)" );
       })
       .on("mousemove", function(d) {
@@ -398,7 +398,7 @@ Workstyle.prototype.update_month = function() {
       .on("mouseout", function(d) {
         d3.select(this).transition().style("opacity", "1");
         self.tooltip.style("visibility", "hidden");
-        
+
       })
 
     d3.selectAll("svg.barchart .legend").remove();
@@ -407,13 +407,13 @@ Workstyle.prototype.update_month = function() {
       .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
-  
+
     bar_legend.append("rect")
         .attr("x", 140)
         .attr("width", 18)
         .attr("height", 18)
         .style("fill", function(d) { return self.color_by_tag(d.tag) } );
-  
+
     bar_legend.append("text")
         .attr("x", 130)
         .attr("y", 9)
@@ -427,7 +427,7 @@ Workstyle.prototype.update_month = function() {
      * piechart (累計割合)
      */
     var radius = ( this.height + this.margin.top + this.margin.bottom ) / 3;
-    
+
     var inner_arc = d3.svg.arc()
       .outerRadius(radius)
       .innerRadius(0);
@@ -447,11 +447,11 @@ Workstyle.prototype.update_month = function() {
     var pie = d3.layout.pie()
       .sort(null)
       .value(function(d) { return d.total });
-    
+
     var total = this.data_by_month.total.total;
-    
+
     this.graph.selectAll("svg.piechart g g").remove();
-    
+
     if (this.show_detail) {
       var data = pie(this.data_by_month.data_3rd);
     } else {
@@ -462,7 +462,7 @@ Workstyle.prototype.update_month = function() {
       .data(data)
       .enter().append("g")
         .attr("class", "inner_arc");
-        
+
     g.append("path")
       .attr("d", inner_arc)
       .style("fill", function(d) { return self.color_by_tag(d.data.tag) })
@@ -478,7 +478,7 @@ Workstyle.prototype.update_month = function() {
       .on("mouseout", function(d) {
         d3.select(this).transition().style("opacity", "1");
         self.tooltip.style("visibility", "hidden");
-        
+
       });
 
     if (!this.dashboard) {
@@ -497,7 +497,7 @@ Workstyle.prototype.update_month = function() {
       .data(pie(this.data_by_month.data))
       .enter().append("g")
         .attr("class", "outer_arc");
-        
+
     g.append("path")
       .attr("d", outer_arc)
       .style("fill", function(d) { return self.color_by_tag(d.data.tag) })
@@ -513,7 +513,7 @@ Workstyle.prototype.update_month = function() {
       .on("mouseout", function(d) {
         d3.select(this).transition().style("opacity", "1");
         self.tooltip.style("visibility", "hidden");
-        
+
       });
 
       this.graph.selectAll("svg.piechart g text.outer_label").remove();
@@ -533,13 +533,13 @@ Workstyle.prototype.update_month = function() {
         .enter().append("g")
           .attr("class", "legend")
           .attr("transform", function(d, i) { return "translate(" + (self.width - 100) + "," + ((i * 20) + 20) + ")"; });
-    
+
       pie_legend.append("rect")
           .attr("x", 140)
           .attr("width", 18)
           .attr("height", 18)
           .style("fill", function(d) { return self.color_by_tag(d.tag) } );
-    
+
       pie_legend.append("text")
           .attr("x", 130)
           .attr("y", 9)
@@ -549,13 +549,13 @@ Workstyle.prototype.update_month = function() {
     }
 
   }
-  
+
   if(this.table) {
-  
+
     var month_table = this.table.select("table.month");
-    
+
     month_table.selectAll("thead tr").remove();
-    
+
     var head_row = month_table.select("thead").append("tr");
     head_row.append("th").text("TAG");
     head_row.selectAll("th.date").data(this.data_by_month.data[0].result)
@@ -564,7 +564,7 @@ Workstyle.prototype.update_month = function() {
       .attr("class", "date")
       .text(function(d) { return d.key.substr(0,7); });
     head_row.append("th").text("TOTAL");
-  
+
     month_table.selectAll("tbody tr").remove();
     var tr = month_table.select("tbody")
       .selectAll("tr")
@@ -614,11 +614,11 @@ Workstyle.prototype.update_person = function() {
   var format = d3.format(".2f");
 
   if(this.table) {
-  
+
     var person_table = this.graph.select("table.person");
 
     person_table.selectAll("thead tr").remove();
-    
+
     var name_map = {
         'haruma@uniba.jp' : '菊地',
         'yui@uniba.jp' : '五木田',
@@ -641,11 +641,11 @@ Workstyle.prototype.update_person = function() {
         'ryo@uniba.jp' : '村山',
         'mj@unia.jp' : '森淳'
     }
-    
+
     var tag_scale = d3.scale.ordinal().domain(['MM', 'SP', 'BO', 'PR', 'LAB', 'ME', 'GROUP', 'Cxxxx', 'Pxxxx', 'CR', 'OTHER']).range([1,2,3,4,5,6,7,8,9,10,11,12]);
-    
+
     this.data_by_person.data_2nd = this.data_by_person.data_2nd.sort(function(a, b) { return tag_scale(a.tag) - tag_scale(b.tag)});
-    
+
     var head_row = person_table.select("thead").append("tr");
     head_row.append("th").text("TAG");
     head_row.selectAll("th.person").data(this.data_by_person.data[0].result)
@@ -653,7 +653,7 @@ Workstyle.prototype.update_person = function() {
       .append("th")
       .attr("class", "date")
       .text(function(d) { return name_map[d.key]; });
-  
+
     person_table.selectAll("tbody tr").remove();
     var tr = person_table.select("tbody")
       .selectAll("tr")
@@ -687,4 +687,3 @@ Workstyle.prototype.change = function() {
   this.update_month();
   this.update_person();
 }
-
